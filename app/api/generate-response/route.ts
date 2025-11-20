@@ -13,6 +13,7 @@ const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 function buildPrompt(
   reviewText: string,
   tone: Tone,
+  customerName: string,
   requestId?: string,
   previousResponse?: string,
   variationSeed?: string
@@ -31,6 +32,7 @@ You are a customer-care specialist drafting a reply to a product review.
 
 Tone: ${tone}
 Company: DanTV
+Customer Name: ${customerName}
 Variation token: ${requestId ?? "primary"}
 Variation seed: ${variationSeed ?? "none"}
 
@@ -53,6 +55,7 @@ Strictly return ONLY a valid, raw JSON object (no markdown, no surrounding backt
 async function callGemini(
   reviewText: string,
   tone: Tone,
+  customerName: string,
   requestId?: string,
   previousResponse?: string,
   attempt = 1
@@ -75,6 +78,7 @@ async function callGemini(
               text: buildPrompt(
                 reviewText,
                 tone,
+                customerName,
                 requestId,
                 previousResponse,
                 variationSeed
@@ -124,7 +128,7 @@ async function callGemini(
     parsed.response.trim().toLowerCase() === previousResponse.trim().toLowerCase() &&
     attempt < 3
   ) {
-    return callGemini(reviewText, tone, randomUUID(), previousResponse, attempt + 1);
+    return callGemini(reviewText, tone, customerName, randomUUID(), previousResponse, attempt + 1);
   }
 
   return {
@@ -164,7 +168,7 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      const ai = await callGemini(review.text, tone, requestId, previousResponse);
+      const ai = await callGemini(review.text, tone, review.customerName, requestId, previousResponse);
       return NextResponse.json(ai);
     } catch (err) {
       console.error("Gemini failed, fallback:", err);
