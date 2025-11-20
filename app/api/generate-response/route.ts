@@ -29,6 +29,7 @@ ${previousResponse}
 
   return `
 You are a customer-care specialist drafting a reply to a product review.
+If you suggest contacting customer service, use this link: dantv.customerservise.dk
 
 Tone: ${tone}
 Company: DanTV
