@@ -1,21 +1,21 @@
 "use client";
 
-import { Review, FilterType } from "@/app/lib/types";
+import { Review, StatusFilter, ProductModelFilter, Filters } from "@/app/lib/types";
 
 interface ReviewSelectorProps {
   reviews: Review[];
   selectedReviewId: string | null;
   onSelectReview: (reviewId: string) => void;
-  filter: FilterType;
-  onFilterChange: (filter: FilterType) => void;
+  filters: Filters;
+  onFiltersChange: (filters: Filters) => void;
 }
 
 export function ReviewSelector({
   reviews,
   selectedReviewId,
   onSelectReview,
-  filter,
-  onFilterChange,
+  filters,
+  onFiltersChange,
 }: ReviewSelectorProps) {
   const getSentimentColor = (sentiment: string) => {
     switch (sentiment) {
@@ -43,49 +43,47 @@ export function ReviewSelector({
         </p>
       </div>
 
-      <div className="space-y-3">
-        <div className="space-y-2">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Status & Sentiment</p>
-          <div className="flex flex-wrap gap-2">
-            {(["all", "answered", "positive", "negative", "neutral"] as FilterType[]).map(
-              (f) => (
-                <button
-                  key={f}
-                  onClick={() => onFilterChange(f)}
-                  className={`px-3 py-1 text-xs font-medium rounded-full capitalize transition-colors ${
-                    filter === f
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}
-                >
-                  {f}
-                </button>
-              )
-            )}
+      <div className="space-y-4">
+        {/* Filter Section */}
+        <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+          <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3">Filters</p>
+          
+          {/* Status & Sentiment Dropdown */}
+          <div className="space-y-2 mb-3">
+            <label htmlFor="status-filter" className="text-[10px] font-medium text-gray-500 uppercase tracking-wide block">
+              Status & Sentiment
+            </label>
+            <select
+              id="status-filter"
+              value={filters.status}
+              onChange={(e) => onFiltersChange({ ...filters, status: e.target.value as StatusFilter })}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="all">All Reviews</option>
+              <option value="answered">Answered</option>
+              <option value="positive">Positive</option>
+              <option value="negative">Negative</option>
+              <option value="neutral">Neutral</option>
+            </select>
           </div>
-        </div>
 
-        <div className="space-y-2">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Product Model</p>
-          <div className="flex flex-wrap gap-2">
-            {(["model-1", "model-2", "model-3", "model-4"] as FilterType[]).map(
-              (f) => {
-                const modelNumber = f.split("-")[1];
-                return (
-                  <button
-                    key={f}
-                    onClick={() => onFilterChange(f)}
-                    className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
-                      filter === f
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    Model {modelNumber}
-                  </button>
-                );
-              }
-            )}
+          {/* Product Model Dropdown */}
+          <div className="space-y-2">
+            <label htmlFor="product-filter" className="text-[10px] font-medium text-gray-500 uppercase tracking-wide block">
+              Product Model
+            </label>
+            <select
+              id="product-filter"
+              value={filters.productModel}
+              onChange={(e) => onFiltersChange({ ...filters, productModel: e.target.value as ProductModelFilter })}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="all">All Models</option>
+              <option value="model-1">TV-Model 1</option>
+              <option value="model-2">TV-Model 2</option>
+              <option value="model-3">TV-Model 3</option>
+              <option value="model-4">TV-Model 4</option>
+            </select>
           </div>
         </div>
       </div>
@@ -113,22 +111,15 @@ export function ReviewSelector({
                   </span>
                 </div>
                 <div className="flex items-center justify-between mb-2">
-                  <div className="flex gap-2">
+                  <div>
                     {review.answered && (
                       <span className="px-2 py-0.5 text-[10px] font-semibold rounded border bg-blue-100 text-blue-800 border-blue-300">
                         Answered
                       </span>
                     )}
-                    <span className="px-2 py-0.5 text-[10px] font-semibold rounded border bg-purple-100 text-purple-800 border-purple-300">
-                      {review.productModel}
-                    </span>
                   </div>
-                  <span
-                    className={`px-2 py-0.5 text-[10px] font-semibold rounded border ${getSentimentColor(
-                      review.sentiment
-                    )}`}
-                  >
-                    {review.sentiment}
+                  <span className="px-2 py-0.5 text-[10px] font-semibold rounded border bg-purple-100 text-purple-800 border-purple-300">
+                    {review.productModel}
                   </span>
                 </div>
                 <p className="text-sm text-gray-600 line-clamp-2">

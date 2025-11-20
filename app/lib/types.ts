@@ -4,7 +4,13 @@ export type Sentiment = "positive" | "negative" | "neutral";
 
 export type ProductModel = "TV-Model 1" | "TV-Model 2" | "TV-Model 3" | "TV-Model 4";
 
-export type FilterType = "all" | "answered" | "positive" | "negative" | "neutral" | "model-1" | "model-2" | "model-3" | "model-4";
+export type StatusFilter = "all" | "answered" | "positive" | "negative" | "neutral";
+export type ProductModelFilter = "all" | "model-1" | "model-2" | "model-3" | "model-4";
+
+export interface Filters {
+  status: StatusFilter;
+  productModel: ProductModelFilter;
+}
 
 export interface Review {
   id: string;

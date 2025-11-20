@@ -8,7 +8,7 @@ import { ResponseViewer } from "./components/ResponseViewer";
 import { LoadingSpinner } from "./components/LoadingSpinner";
 import { SummaryViewer } from "./components/SummaryViewer";
 import { reviews } from "./lib/reviews";
-import { Tone, Response, FilterType, SummaryResponse } from "./lib/types";
+import { Tone, Response, Filters, SummaryResponse } from "./lib/types";
 import { toast } from "sonner";
 
 async function generateResponse(
@@ -54,7 +54,7 @@ async function generateSummary(productModel?: string): Promise<SummaryResponse> 
 
 export default function Home() {
   const [reviewsState, setReviewsState] = useState(reviews);
-  const [filter, setFilter] = useState<FilterType>("all");
+  const [filters, setFilters] = useState<Filters>({ status: "all", productModel: "all" });
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
   const [selectedTone, setSelectedTone] = useState<Tone | null>(null);
   const [generatedResponse, setGeneratedResponse] = useState<Response | null>(null);
@@ -149,16 +149,21 @@ export default function Home() {
   const selectedReview = reviewsState.find((review) => review.id === selectedReviewId);
 
   const filteredReviews = reviewsState.filter((review) => {
-    if (filter === "all") return true;
-    if (filter === "answered") return review.answered;
-    if (filter === "positive") return review.sentiment === "positive";
-    if (filter === "negative") return review.sentiment === "negative";
-    if (filter === "neutral") return review.sentiment === "neutral";
-    if (filter === "model-1") return review.productModel === "TV-Model 1";
-    if (filter === "model-2") return review.productModel === "TV-Model 2";
-    if (filter === "model-3") return review.productModel === "TV-Model 3";
-    if (filter === "model-4") return review.productModel === "TV-Model 4";
-    return true;
+    // Apply status/sentiment filter
+    let statusMatch = true;
+    if (filters.status === "answered") statusMatch = review.answered === true;
+    else if (filters.status === "positive") statusMatch = review.sentiment === "positive";
+    else if (filters.status === "negative") statusMatch = review.sentiment === "negative";
+    else if (filters.status === "neutral") statusMatch = review.sentiment === "neutral";
+    
+    // Apply product model filter
+    let productMatch = true;
+    if (filters.productModel === "model-1") productMatch = review.productModel === "TV-Model 1";
+    else if (filters.productModel === "model-2") productMatch = review.productModel === "TV-Model 2";
+    else if (filters.productModel === "model-3") productMatch = review.productModel === "TV-Model 3";
+    else if (filters.productModel === "model-4") productMatch = review.productModel === "TV-Model 4";
+    
+    return statusMatch && productMatch;
   });
 
   return (
@@ -175,8 +180,8 @@ export default function Home() {
               reviews={filteredReviews}
               selectedReviewId={selectedReviewId}
               onSelectReview={handleSelectReview}
-              filter={filter}
-              onFilterChange={setFilter}
+              filters={filters}
+              onFiltersChange={setFilters}
             />
           </section>
 
@@ -226,37 +231,27 @@ export default function Home() {
                           Selected review
                         </p>
                         <div className="rounded-lg border border-gray-200 p-4 bg-gray-50 space-y-2">
-                          <div className="flex items-center justify-between gap-3 mb-2">
-                            <div className="flex items-center gap-3">
-                              <span className="text-sm font-medium text-gray-900">
-                                {selectedReview.customerName}
-                              </span>
-                              <span className="text-yellow-500 text-sm">
-                                {"★".repeat(selectedReview.rating) +
-                                  "☆".repeat(5 - selectedReview.rating)}
+                          <div className="space-y-2 mb-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <span className="text-sm font-medium text-gray-900">
+                                  {selectedReview.customerName}
+                                </span>
+                                <span className="text-yellow-500 text-sm">
+                                  {"★".repeat(selectedReview.rating) +
+                                    "☆".repeat(5 - selectedReview.rating)}
+                                </span>
+                              </div>
+                              <span className="px-2 py-1 text-xs font-semibold rounded bg-purple-100 text-purple-800 border border-purple-200">
+                                {selectedReview.productModel}
                               </span>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div>
                               {selectedReview.answered && (
                                 <span className="px-2 py-1 text-xs font-semibold rounded bg-blue-100 text-blue-800 border border-blue-200">
                                   Answered
                                 </span>
                               )}
-                              <span className="px-2 py-1 text-xs font-semibold rounded bg-purple-100 text-purple-800 border border-purple-200">
-                                {selectedReview.productModel}
-                              </span>
-                              <span
-                                className={`text-xs font-semibold uppercase px-2 py-1 rounded ${
-                                  selectedReview.sentiment === "positive"
-                                    ? "bg-green-100 text-green-700"
-                                    : selectedReview.sentiment === "negative"
-                                    ? "bg-red-100 text-red-700"
-                                    : "bg-yellow-100 text-yellow-700"
-                                }`}
-                              >
-                                {selectedReview.sentiment}
-                              </span>
-                              <span className="text-xs text-gray-500">#{selectedReview.id}</span>
                             </div>
                           </div>
                           <p className="text-gray-800 leading-relaxed">{selectedReview.text}</p>
@@ -306,10 +301,10 @@ export default function Home() {
                   onGenerate={() => {
                     // Determine product model based on current filter
                     let productModel: string | undefined;
-                    if (filter === "model-1") productModel = "TV-Model 1";
-                    else if (filter === "model-2") productModel = "TV-Model 2";
-                    else if (filter === "model-3") productModel = "TV-Model 3";
-                    else if (filter === "model-4") productModel = "TV-Model 4";
+                    if (filters.productModel === "model-1") productModel = "TV-Model 1";
+                    else if (filters.productModel === "model-2") productModel = "TV-Model 2";
+                    else if (filters.productModel === "model-3") productModel = "TV-Model 3";
+                    else if (filters.productModel === "model-4") productModel = "TV-Model 4";
                     summaryMutation.mutate(productModel);
                   }}
                 />
