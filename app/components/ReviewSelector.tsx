@@ -32,23 +32,30 @@ export function ReviewSelector({
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">
-        Select a Review
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="text-xl font-semibold text-gray-900">Reviews</h2>
+        <p className="text-xs text-gray-500 uppercase tracking-wide">
+          {reviews.length} items
+        </p>
+      </div>
+      <p className="text-sm text-gray-500">
+        Browse synthetic TV reviews and pick one to craft a response.
+      </p>
+      <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-1 custom-scroll">
         {reviews.map((review) => {
           const isSelected = selectedReviewId === review.id;
           return (
             <button
               key={review.id}
+              type="button"
               onClick={() => onSelectReview(review.id)}
-              className={`p-4 rounded-lg border-2 text-left transition-all hover:shadow-md ${
+              className={`w-full rounded-xl border p-4 text-left transition-all ${
                 isSelected
                   ? "border-blue-500 bg-blue-50 shadow-md"
                   : "border-gray-200 bg-white hover:border-gray-300"
               }`}
             >
-              <div className="flex items-start justify-between mb-2">
+              <div className="flex items-center justify-between mb-2">
                 <span
                   className={`px-2 py-1 text-xs font-semibold rounded border ${getSentimentColor(
                     review.sentiment
@@ -56,11 +63,11 @@ export function ReviewSelector({
                 >
                   {review.sentiment}
                 </span>
-                <span className="text-yellow-500 text-sm">
+                <span className="text-yellow-500 text-xs">
                   {getRatingStars(review.rating)}
                 </span>
               </div>
-              <p className="text-sm text-gray-700 line-clamp-3">
+              <p className="text-sm text-gray-800 line-clamp-3">
                 {review.text}
               </p>
             </button>

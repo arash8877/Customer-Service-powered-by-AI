@@ -44,6 +44,13 @@ export default function Home() {
     },
   });
 
+  const handleSelectReview = (reviewId: string) => {
+    setSelectedReviewId(reviewId);
+    setSelectedTone(null);
+    setGeneratedResponse(null);
+    mutation.reset();
+  };
+
   const handleGenerate = () => {
     if (!selectedReviewId || !selectedTone) {
       alert("Please select a review and tone first.");
@@ -64,6 +71,8 @@ export default function Home() {
     alert("Response accepted! (In a real app, this would save the response.)");
   };
 
+  const selectedReview = reviews.find((review) => review.id === selectedReviewId);
+
   return (
     <main className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -75,59 +84,99 @@ export default function Home() {
             AI-powered responses to customer reviews
           </p>
         </div>
-
-        <div className="space-y-8">
-          {/* Review Selection */}
-          <section className="bg-white rounded-lg shadow-md p-6">
+        <div className="grid gap-6 lg:grid-cols-[320px,1fr]">
+          {/* Review Selection Panel */}
+          <section className="bg-white rounded-lg shadow-md p-4 lg:p-6 h-fit">
             <ReviewSelector
               reviews={reviews}
               selectedReviewId={selectedReviewId}
-              onSelectReview={setSelectedReviewId}
+              onSelectReview={handleSelectReview}
             />
           </section>
 
-          {/* Tone Selection and Generate Button */}
-          {selectedReviewId && (
-            <section className="bg-white rounded-lg shadow-md p-6">
-              <div className="max-w-md space-y-4">
-                <ToneSelector
-                  selectedTone={selectedTone}
-                  onSelectTone={setSelectedTone}
-                  disabled={!selectedReviewId}
-                />
-                <button
-                  onClick={handleGenerate}
-                  disabled={!selectedTone || mutation.isPending}
-                  className={`w-full px-6 py-3 rounded-lg font-semibold text-white transition-colors ${
-                    !selectedTone || mutation.isPending
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-blue-600 hover:bg-blue-700"
-                  }`}
-                >
-                  {mutation.isPending ? "Generating..." : "Generate AI Response"}
-                </button>
+          {/* Workspace Panel */}
+          <section className="bg-white rounded-lg shadow-md p-6 space-y-6">
+            {!selectedReview && (
+              <div className="flex flex-col items-center justify-center text-center text-gray-500 min-h-[300px] space-y-3">
+                <p className="text-xl font-semibold text-gray-700">
+                  Pick a review to get started
+                </p>
+                <p className="max-w-md">
+                  Choose any review from the list to view its details, select a
+                  tone, and generate an AI-assisted draft response.
+                </p>
               </div>
-            </section>
-          )}
+            )}
 
-          {/* Loading State */}
-          {mutation.isPending && (
-            <section className="bg-white rounded-lg shadow-md p-6">
-              <LoadingSpinner />
-            </section>
-          )}
+            {selectedReview && (
+              <>
+                <div className="space-y-3">
+                  <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                    Selected review
+                  </p>
+                  <div className="rounded-lg border border-gray-200 p-4 bg-gray-50 space-y-2">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="text-yellow-500 text-sm">
+                        {"★".repeat(selectedReview.rating) +
+                          "☆".repeat(5 - selectedReview.rating)}
+                      </span>
+                      <span
+                        className={`text-xs font-semibold uppercase px-2 py-1 rounded ${
+                          selectedReview.sentiment === "positive"
+                            ? "bg-green-100 text-green-700"
+                            : selectedReview.sentiment === "negative"
+                            ? "bg-red-100 text-red-700"
+                            : "bg-yellow-100 text-yellow-700"
+                        }`}
+                      >
+                        {selectedReview.sentiment}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        #{selectedReview.id}
+                      </span>
+                    </div>
+                    <p className="text-gray-800 leading-relaxed">
+                      {selectedReview.text}
+                    </p>
+                  </div>
+                </div>
 
-          {/* Generated Response */}
-          {mutation.isSuccess && generatedResponse && !mutation.isPending && (
-            <section className="bg-white rounded-lg shadow-md p-6">
-              <ResponseViewer
-                response={generatedResponse}
-                onRegenerate={handleRegenerate}
-                onAccept={handleAccept}
-                isGenerating={mutation.isPending}
-              />
-            </section>
-          )}
+                <div className="grid gap-4 md:grid-cols-[1fr,auto] items-end">
+                  <ToneSelector
+                    selectedTone={selectedTone}
+                    onSelectTone={setSelectedTone}
+                    disabled={!selectedReview}
+                  />
+                  <button
+                    onClick={handleGenerate}
+                    disabled={!selectedTone || mutation.isPending}
+                    className={`w-full md:w-48 px-6 py-3 rounded-lg font-semibold text-white transition-colors ${
+                      !selectedTone || mutation.isPending
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-blue-600 hover:bg-blue-700"
+                    }`}
+                  >
+                    {mutation.isPending ? "Generating..." : "Generate Response"}
+                  </button>
+                </div>
+
+                {mutation.isPending && (
+                  <div className="border border-gray-200 rounded-lg">
+                    <LoadingSpinner />
+                  </div>
+                )}
+
+                {generatedResponse && !mutation.isPending && (
+                  <ResponseViewer
+                    response={generatedResponse}
+                    onRegenerate={handleRegenerate}
+                    onAccept={handleAccept}
+                    isGenerating={mutation.isPending}
+                  />
+                )}
+              </>
+            )}
+          </section>
         </div>
       </div>
     </main>
