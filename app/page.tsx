@@ -7,7 +7,8 @@ import { ToneSelector } from "./components/ToneSelector";
 import { ResponseViewer } from "./components/ResponseViewer";
 import { LoadingSpinner } from "./components/LoadingSpinner";
 import { reviews } from "./lib/reviews";
-import { Tone, Response } from "./lib/types";
+import { Tone, Response, FilterType } from "./lib/types";
+import { toast } from "sonner";
 
 async function generateResponse(
   reviewId: string,
@@ -36,6 +37,7 @@ async function generateResponse(
 
 export default function Home() {
   const [reviewsState, setReviewsState] = useState(reviews);
+  const [filter, setFilter] = useState<FilterType>("all");
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
   const [selectedTone, setSelectedTone] = useState<Tone | null>(null);
   const [generatedResponse, setGeneratedResponse] = useState<Response | null>(null);
@@ -104,10 +106,20 @@ export default function Home() {
       setSelectedReviewId(null);
       setSelectedTone(null);
       setGeneratedResponse(null);
+      toast.success("Response accepted successfully!");
     }
   };
 
   const selectedReview = reviewsState.find((review) => review.id === selectedReviewId);
+
+  const filteredReviews = reviewsState.filter((review) => {
+    if (filter === "all") return true;
+    if (filter === "answered") return review.answered;
+    if (filter === "positive") return review.sentiment === "positive";
+    if (filter === "negative") return review.sentiment === "negative";
+    if (filter === "neutral") return review.sentiment === "neutral";
+    return true;
+  });
 
   return (
     <main className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -120,9 +132,11 @@ export default function Home() {
           {/* Review Selection Panel */}
           <section className="bg-white rounded-lg shadow-md p-4 lg:p-6 h-fit">
             <ReviewSelector
-              reviews={reviewsState}
+              reviews={filteredReviews}
               selectedReviewId={selectedReviewId}
               onSelectReview={handleSelectReview}
+              filter={filter}
+              onFilterChange={setFilter}
             />
           </section>
 
@@ -163,6 +177,11 @@ export default function Home() {
                       >
                         {selectedReview.sentiment}
                       </span>
+                      {selectedReview.answered && (
+                        <span className="px-2 py-1 text-xs font-semibold rounded bg-blue-100 text-blue-800 border border-blue-200">
+                          Answered
+                        </span>
+                      )}
                       <span className="text-xs text-gray-500">#{selectedReview.id}</span>
                     </div>
                     <p className="text-gray-800 leading-relaxed">{selectedReview.text}</p>

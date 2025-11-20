@@ -1,17 +1,21 @@
 "use client";
 
-import { Review } from "@/app/lib/types";
+import { Review, FilterType } from "@/app/lib/types";
 
 interface ReviewSelectorProps {
   reviews: Review[];
   selectedReviewId: string | null;
   onSelectReview: (reviewId: string) => void;
+  filter: FilterType;
+  onFilterChange: (filter: FilterType) => void;
 }
 
 export function ReviewSelector({
   reviews,
   selectedReviewId,
   onSelectReview,
+  filter,
+  onFilterChange,
 }: ReviewSelectorProps) {
   const getSentimentColor = (sentiment: string) => {
     switch (sentiment) {
@@ -38,6 +42,25 @@ export function ReviewSelector({
           {reviews.length} items
         </p>
       </div>
+
+      <div className="flex flex-wrap gap-2">
+        {(["all", "answered", "positive", "negative", "neutral"] as FilterType[]).map(
+          (f) => (
+            <button
+              key={f}
+              onClick={() => onFilterChange(f)}
+              className={`px-3 py-1 text-xs font-medium rounded-full capitalize transition-colors ${
+                filter === f
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              {f}
+            </button>
+          )
+        )}
+      </div>
+
       <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-1 custom-scroll">
         {reviews.map((review) => {
           const isSelected = selectedReviewId === review.id;
@@ -56,9 +79,18 @@ export function ReviewSelector({
                   <span className="text-sm font-medium text-gray-900">
                     {review.customerName}
                   </span>
-                  <span className="text-yellow-500 text-xs">
-                    {getRatingStars(review.rating)}
-                  </span>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="text-yellow-500 text-xs">
+                      {getRatingStars(review.rating)}
+                    </span>
+                    <span
+                      className={`px-2 py-0.5 text-[10px] font-semibold rounded border ${getSentimentColor(
+                        review.sentiment
+                      )}`}
+                    >
+                      {review.sentiment}
+                    </span>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 mb-2">
                   {review.answered && (
@@ -66,13 +98,6 @@ export function ReviewSelector({
                       Answered
                     </span>
                   )}
-                  <span
-                    className={`px-2 py-0.5 text-[10px] font-semibold rounded border ${getSentimentColor(
-                      review.sentiment
-                    )}`}
-                  >
-                    {review.sentiment}
-                  </span>
                 </div>
                 <p className="text-sm text-gray-600 line-clamp-2">
                   {review.text}
