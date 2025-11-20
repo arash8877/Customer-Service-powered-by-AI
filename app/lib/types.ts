@@ -7,6 +7,7 @@ export interface Review {
   text: string;
   rating: number;
   sentiment: Sentiment;
+  customerName: string;
 }
 
 export interface ResponseRequest {

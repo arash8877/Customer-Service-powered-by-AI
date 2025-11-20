@@ -136,6 +136,9 @@ export default function Home() {
                   </p>
                   <div className="rounded-lg border border-gray-200 p-4 bg-gray-50 space-y-2">
                     <div className="flex flex-wrap items-center gap-3">
+                      <span className="text-sm font-medium text-gray-900">
+                        {selectedReview.customerName}
+                      </span>
                       <span className="text-yellow-500 text-sm">
                         {"★".repeat(selectedReview.rating) + "☆".repeat(5 - selectedReview.rating)}
                       </span>

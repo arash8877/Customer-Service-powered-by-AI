@@ -55,21 +55,26 @@ export function ReviewSelector({
                   : "border-gray-200 bg-white hover:border-gray-300"
               }`}
             >
-              <div className="flex items-center justify-between mb-2">
-                <span
-                  className={`px-2 py-1 text-xs font-semibold rounded border ${getSentimentColor(
-                    review.sentiment
-                  )}`}
-                >
-                  {review.sentiment}
-                </span>
-                <span className="text-yellow-500 text-xs">
-                  {getRatingStars(review.rating)}
-                </span>
-              </div>
-              <p className="text-sm text-gray-800 line-clamp-3">
-                {review.text}
-              </p>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm font-medium text-gray-900">
+                    {review.customerName}
+                  </span>
+                  <span className="text-yellow-500 text-xs">
+                    {getRatingStars(review.rating)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span
+                    className={`px-2 py-0.5 text-[10px] font-semibold rounded border ${getSentimentColor(
+                      review.sentiment
+                    )}`}
+                  >
+                    {review.sentiment}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600 line-clamp-2">
+                  {review.text}
+                </p>
             </button>
           );
         })}
