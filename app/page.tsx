@@ -35,6 +35,7 @@ async function generateResponse(
 }
 
 export default function Home() {
+  const [reviewsState, setReviewsState] = useState(reviews);
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
   const [selectedTone, setSelectedTone] = useState<Tone | null>(null);
   const [generatedResponse, setGeneratedResponse] = useState<Response | null>(null);
@@ -94,10 +95,19 @@ export default function Home() {
   };
 
   const handleAccept = () => {
-    alert("Response accepted! (In a real app, this would save the response.)");
+    if (selectedReviewId) {
+      setReviewsState((prev) =>
+        prev.map((review) =>
+          review.id === selectedReviewId ? { ...review, answered: true } : review
+        )
+      );
+      setSelectedReviewId(null);
+      setSelectedTone(null);
+      setGeneratedResponse(null);
+    }
   };
 
-  const selectedReview = reviews.find((review) => review.id === selectedReviewId);
+  const selectedReview = reviewsState.find((review) => review.id === selectedReviewId);
 
   return (
     <main className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -110,7 +120,7 @@ export default function Home() {
           {/* Review Selection Panel */}
           <section className="bg-white rounded-lg shadow-md p-4 lg:p-6 h-fit">
             <ReviewSelector
-              reviews={reviews}
+              reviews={reviewsState}
               selectedReviewId={selectedReviewId}
               onSelectReview={handleSelectReview}
             />

@@ -8,6 +8,7 @@ export interface Review {
   rating: number;
   sentiment: Sentiment;
   customerName: string;
+  answered?: boolean;
 }
 
 export interface ResponseRequest {

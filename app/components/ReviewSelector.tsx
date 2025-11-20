@@ -38,9 +38,6 @@ export function ReviewSelector({
           {reviews.length} items
         </p>
       </div>
-      <p className="text-sm text-gray-500">
-        Browse synthetic TV reviews and pick one to craft a response.
-      </p>
       <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-1 custom-scroll">
         {reviews.map((review) => {
           const isSelected = selectedReviewId === review.id;
@@ -64,6 +61,11 @@ export function ReviewSelector({
                   </span>
                 </div>
                 <div className="flex items-center gap-2 mb-2">
+                  {review.answered && (
+                    <span className="px-2 py-0.5 text-[10px] font-semibold rounded border bg-blue-100 text-blue-800 border-blue-300">
+                      Answered
+                    </span>
+                  )}
                   <span
                     className={`px-2 py-0.5 text-[10px] font-semibold rounded border ${getSentimentColor(
                       review.sentiment
