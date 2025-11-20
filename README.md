@@ -28,6 +28,16 @@ A Next.js web application that generates AI-powered responses to product reviews
 npm install
 ```
 
+### Environment Variables
+
+Create a `.env.local` file in the project root:
+
+```
+GEMINI_API_KEY=your_google_gemini_api_key
+```
+
+This key powers the AI response endpoint. Never commit the actual value to source control.
+
 ### Development
 
 Run the development server:
