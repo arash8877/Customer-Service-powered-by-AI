@@ -3,10 +3,12 @@ import { randomUUID } from "crypto";
 import { reviews } from "@/app/lib/reviews";
 import { Tone, Response } from "@/app/lib/types";
 
+// The corrected endpoint using the recommended model alias for fast generation
 const GEMINI_ENDPOINT =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent";
+  "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent";
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 function buildPrompt(
   reviewText: string,
@@ -24,30 +26,25 @@ ${previousResponse}
 `.trim()
     : "";
 
-  const adjectives = ["empathetic", "professional", "helpful", "concise", "warm"];
-  const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
-
   return `
-You are a ${randomAdjective} customer-care specialist drafting a reply to a product review.
+You are a customer-care specialist drafting a reply to a product review.
 
-Tone required: ${tone}
+Tone: ${tone}
 Variation token: ${requestId ?? "primary"}
-Variation seed: ${variationSeed ?? "seedless"}
-${previousBlock ? `\n${previousBlock}\n` : ""}
+Variation seed: ${variationSeed ?? "none"}
+
+${previousBlock}
 
 Customer review:
 """
 ${reviewText}
 """
 
-Respond as the brand using the requested tone. Address the customer's key concerns, show accountability, and offer a clear next step when relevant. Keep the response under 180 words.
-
-IMPORTANT: If a previous draft is provided above, you MUST generate a response that is SIGNIFICANTLY different in structure and vocabulary. Do not just swap a few words. Use a completely different opening and closing. The goal is to provide the user with a fresh alternative option.
-
-Important: Return JSON with this shape:
+// Improved instruction for stricter JSON adherence
+Strictly return ONLY a valid, raw JSON object (no markdown, no surrounding backticks, no comments) in this exact shape:
 {
-  "response": "<final reply as plain text>",
-  "keyConcerns": ["<concern 1>", "<concern 2>", "..."] // include 0-3 concise items
+  "response": "<the drafted reply as plain text>",
+  "keyConcerns": ["<concern 1>", "<concern 2>"]
 }
 `.trim();
 }
@@ -60,113 +57,101 @@ async function callGemini(
   attempt = 1
 ): Promise<Response> {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error("Missing GEMINI_API_KEY environment variable");
-  }
+  if (!apiKey) throw new Error("Missing GEMINI_API_KEY");
 
   const variationSeed = randomUUID();
 
-  const response = await fetch(`${GEMINI_ENDPOINT}?key=${apiKey}`, {
+  const res = await fetch(`${GEMINI_ENDPOINT}?key=${apiKey}`, {
     method: "POST",
     cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       contents: [
         {
           role: "user",
           parts: [
             {
-              text: buildPrompt(reviewText, tone, requestId, previousResponse, variationSeed),
+              text: buildPrompt(
+                reviewText,
+                tone,
+                requestId,
+                previousResponse,
+                variationSeed
+              ),
             },
           ],
         },
       ],
+      // CORRECT v1 GENERATION CONFIG
       generationConfig: {
-        temperature: 1.3,
-        top_k: 64,
-        top_p: 0.95,
-        response_mime_type: "application/json",
+        temperature: 0.3,
+        topK: 40,
+        topP: 0.9,
       },
     }),
   });
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Gemini API error: ${error}`);
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Gemini API HTTP error: ${errorText}`);
   }
 
-  const data = await response.json();
-  const jsonPayload = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
+  const data = await res.json();
 
+  // Extract all text parts and merge
+  const parts = data?.candidates?.[0]?.content?.parts || [];
+  const mergedJSON = parts.map((p: any) => p.text ?? "").join("");
+
+  if (!mergedJSON) throw new Error("Empty Gemini response");
+
+  let parsed;
   try {
-    const parsed = JSON.parse(jsonPayload);
-    const aiResponse = (parsed.response as string) ?? "";
-    const keyConcerns = Array.isArray(parsed.keyConcerns)
-      ? (parsed.keyConcerns as string[])
-      : undefined;
-
-    if (!aiResponse) {
-      throw new Error("Gemini returned an empty response");
-    }
-
-    const trimmedResponse = aiResponse.trim();
-    const trimmedPrevious = previousResponse?.trim();
-
-    if (
-      previousResponse &&
-      trimmedResponse &&
-      trimmedPrevious &&
-      trimmedResponse.toLowerCase() === trimmedPrevious.toLowerCase() &&
-      attempt < 3
-    ) {
-      console.warn("Gemini returned identical text, retrying with new seed");
-      return callGemini(reviewText, tone, randomUUID(), previousResponse, attempt + 1);
-    }
-
-    return { text: aiResponse, keyConcerns };
-  } catch (error) {
-    throw new Error("Failed to parse Gemini response payload");
+    // FIX: Use a regex to strip any markdown fences (```json, ```) from the response
+    const cleanedJSON = mergedJSON.replace(/```json\s*|```/g, "").trim();
+    
+    parsed = JSON.parse(cleanedJSON);
+  } catch (err) {
+    console.error("Failed to parse Gemini JSON:", mergedJSON);
+    throw new Error("Invalid JSON from Gemini");
   }
+
+  if (!parsed.response) throw new Error("Missing 'response' field in Gemini JSON");
+
+  // Retry with new seed if model returns identical text
+  if (
+    previousResponse &&
+    parsed.response.trim().toLowerCase() === previousResponse.trim().toLowerCase() &&
+    attempt < 3
+  ) {
+    return callGemini(reviewText, tone, randomUUID(), previousResponse, attempt + 1);
+  }
+
+  return {
+    text: parsed.response,
+    keyConcerns: parsed.keyConcerns ?? [],
+  };
 }
 
 function fallbackResponse(reviewText: string, sentiment: string, tone: Tone): Response {
-  const base = `Thanks for taking the time to share your experience.`;
+  const base = `Thanks for sharing your experience.`;
   const apology =
     sentiment === "negative"
-      ? " We're sorry to hear things didn't go as expected and we'd like to help make it right."
+      ? " We're sorry things didn't go as expected and we'd like to help resolve this."
       : "";
   const close =
     tone === "Formal"
       ? " Kind regards, Customer Care Team."
-      : " Please reach out to our support team if there's anything else we can do.";
+      : " If there's anything else we can do, please let us know.";
 
   return {
-    text: `${base}${apology} We appreciate your detailed feedback and are already reviewing it with our product specialists.${close}`,
+    text: `${base}${apology} We appreciate your feedback.${close}`,
   };
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { reviewId, tone, requestId, previousResponse } = body as {
-      reviewId?: string;
-      tone?: Tone;
-      requestId?: string;
-      previousResponse?: string;
-    };
-
-    console.log("API Request:", {
-      reviewId,
-      tone,
-      requestId,
-      hasPreviousResponse: !!previousResponse,
-    });
-    if (previousResponse) {
-      console.log("Previous response length:", previousResponse.length);
-      console.log("Previous response preview:", previousResponse.substring(0, 50));
-    }
+    const { reviewId, tone, requestId, previousResponse } = body;
 
     if (!reviewId || !tone) {
       return NextResponse.json({ error: "Missing reviewId or tone" }, { status: 400 });
@@ -178,15 +163,17 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      const aiResponse = await callGemini(review.text, tone, requestId, previousResponse);
-      return NextResponse.json(aiResponse);
-    } catch (error) {
-      console.error("Gemini call failed, falling back to template:", error);
+      const ai = await callGemini(review.text, tone, requestId, previousResponse);
+      return NextResponse.json(ai);
+    } catch (err) {
+      console.error("Gemini failed, fallback:", err);
       await delay(500);
-      return NextResponse.json(fallbackResponse(review.text, review.sentiment, tone));
+      return NextResponse.json(
+        fallbackResponse(review.text, review.sentiment, tone)
+      );
     }
-  } catch (error) {
-    console.error("Unexpected error while generating response:", error);
+  } catch (err) {
+    console.error("Unexpected server error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
