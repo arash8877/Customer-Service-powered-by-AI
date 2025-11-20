@@ -9,13 +9,22 @@ import { LoadingSpinner } from "./components/LoadingSpinner";
 import { reviews } from "./lib/reviews";
 import { Tone, Response } from "./lib/types";
 
-async function generateResponse(reviewId: string, tone: Tone): Promise<Response> {
+async function generateResponse(
+  reviewId: string,
+  tone: Tone,
+  options?: { requestId?: string; previousResponse?: string }
+): Promise<Response> {
   const response = await fetch("/api/generate-response", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ reviewId, tone }),
+    body: JSON.stringify({
+      reviewId,
+      tone,
+      requestId: options?.requestId,
+      previousResponse: options?.previousResponse,
+    }),
   });
 
   if (!response.ok) {
@@ -28,13 +37,20 @@ async function generateResponse(reviewId: string, tone: Tone): Promise<Response>
 export default function Home() {
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
   const [selectedTone, setSelectedTone] = useState<Tone | null>(null);
-  const [generatedResponse, setGeneratedResponse] = useState<Response | null>(
-    null
-  );
+  const [generatedResponse, setGeneratedResponse] = useState<Response | null>(null);
 
   const mutation = useMutation({
-    mutationFn: ({ reviewId, tone }: { reviewId: string; tone: Tone }) =>
-      generateResponse(reviewId, tone),
+    mutationFn: ({
+      reviewId,
+      tone,
+      requestId,
+      previousResponse,
+    }: {
+      reviewId: string;
+      tone: Tone;
+      requestId?: string;
+      previousResponse?: string;
+    }) => generateResponse(reviewId, tone, { requestId, previousResponse }),
     onSuccess: (data) => {
       setGeneratedResponse(data);
     },
@@ -57,14 +73,24 @@ export default function Home() {
       return;
     }
 
-    mutation.mutate({ reviewId: selectedReviewId, tone: selectedTone });
+    mutation.mutate({
+      reviewId: selectedReviewId,
+      tone: selectedTone,
+      requestId: crypto.randomUUID(),
+      previousResponse: undefined,
+    });
   };
 
   const handleRegenerate = () => {
     if (!selectedReviewId || !selectedTone) {
       return;
     }
-    mutation.mutate({ reviewId: selectedReviewId, tone: selectedTone });
+    mutation.mutate({
+      reviewId: selectedReviewId,
+      tone: selectedTone,
+      requestId: crypto.randomUUID(),
+      previousResponse: generatedResponse?.text,
+    });
   };
 
   const handleAccept = () => {
@@ -77,12 +103,8 @@ export default function Home() {
     <main className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Review Response Generator
-          </h1>
-          <p className="text-lg text-gray-600">
-            AI-powered responses to customer reviews
-          </p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Review Response Generator</h1>
+          <p className="text-lg text-gray-600">AI-powered responses to customer reviews</p>
         </div>
         <div className="grid gap-6 lg:grid-cols-[320px,1fr]">
           {/* Review Selection Panel */}
@@ -98,12 +120,10 @@ export default function Home() {
           <section className="bg-white rounded-lg shadow-md p-6 space-y-6">
             {!selectedReview && (
               <div className="flex flex-col items-center justify-center text-center text-gray-500 min-h-[300px] space-y-3">
-                <p className="text-xl font-semibold text-gray-700">
-                  Pick a review to get started
-                </p>
+                <p className="text-xl font-semibold text-gray-700">Pick a review to get started</p>
                 <p className="max-w-md">
-                  Choose any review from the list to view its details, select a
-                  tone, and generate an AI-assisted draft response.
+                  Choose any review from the list to view its details, select a tone, and generate
+                  an AI-assisted draft response.
                 </p>
               </div>
             )}
@@ -117,8 +137,7 @@ export default function Home() {
                   <div className="rounded-lg border border-gray-200 p-4 bg-gray-50 space-y-2">
                     <div className="flex flex-wrap items-center gap-3">
                       <span className="text-yellow-500 text-sm">
-                        {"★".repeat(selectedReview.rating) +
-                          "☆".repeat(5 - selectedReview.rating)}
+                        {"★".repeat(selectedReview.rating) + "☆".repeat(5 - selectedReview.rating)}
                       </span>
                       <span
                         className={`text-xs font-semibold uppercase px-2 py-1 rounded ${
@@ -131,13 +150,9 @@ export default function Home() {
                       >
                         {selectedReview.sentiment}
                       </span>
-                      <span className="text-xs text-gray-500">
-                        #{selectedReview.id}
-                      </span>
+                      <span className="text-xs text-gray-500">#{selectedReview.id}</span>
                     </div>
-                    <p className="text-gray-800 leading-relaxed">
-                      {selectedReview.text}
-                    </p>
+                    <p className="text-gray-800 leading-relaxed">{selectedReview.text}</p>
                   </div>
                 </div>
 
@@ -182,4 +197,3 @@ export default function Home() {
     </main>
   );
 }
-

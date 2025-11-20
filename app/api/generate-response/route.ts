@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 import { reviews } from "@/app/lib/reviews";
 import { Tone, Response } from "@/app/lib/types";
 
@@ -7,11 +8,32 @@ const GEMINI_ENDPOINT =
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-function buildPrompt(reviewText: string, tone: Tone) {
+function buildPrompt(
+  reviewText: string,
+  tone: Tone,
+  requestId?: string,
+  previousResponse?: string,
+  variationSeed?: string
+) {
+  const previousBlock = previousResponse
+    ? `
+Previous draft (provide a distinctly different alternative):
+"""
+${previousResponse}
+"""
+`.trim()
+    : "";
+
+  const adjectives = ["empathetic", "professional", "helpful", "concise", "warm"];
+  const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+
   return `
-You are a customer-care specialist drafting a reply to a product review.
+You are a ${randomAdjective} customer-care specialist drafting a reply to a product review.
 
 Tone required: ${tone}
+Variation token: ${requestId ?? "primary"}
+Variation seed: ${variationSeed ?? "seedless"}
+${previousBlock ? `\n${previousBlock}\n` : ""}
 
 Customer review:
 """
@@ -19,6 +41,8 @@ ${reviewText}
 """
 
 Respond as the brand using the requested tone. Address the customer's key concerns, show accountability, and offer a clear next step when relevant. Keep the response under 180 words.
+
+IMPORTANT: If a previous draft is provided above, you MUST generate a response that is SIGNIFICANTLY different in structure and vocabulary. Do not just swap a few words. Use a completely different opening and closing. The goal is to provide the user with a fresh alternative option.
 
 Important: Return JSON with this shape:
 {
@@ -28,14 +52,23 @@ Important: Return JSON with this shape:
 `.trim();
 }
 
-async function callGemini(reviewText: string, tone: Tone): Promise<Response> {
+async function callGemini(
+  reviewText: string,
+  tone: Tone,
+  requestId?: string,
+  previousResponse?: string,
+  attempt = 1
+): Promise<Response> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error("Missing GEMINI_API_KEY environment variable");
   }
 
+  const variationSeed = randomUUID();
+
   const response = await fetch(`${GEMINI_ENDPOINT}?key=${apiKey}`, {
     method: "POST",
+    cache: "no-store",
     headers: {
       "Content-Type": "application/json",
     },
@@ -43,11 +76,23 @@ async function callGemini(reviewText: string, tone: Tone): Promise<Response> {
       contents: [
         {
           role: "user",
-          parts: [{ text: buildPrompt(reviewText, tone) }],
+          parts: [
+            {
+              text: buildPrompt(
+                reviewText,
+                tone,
+                requestId,
+                previousResponse,
+                variationSeed
+              ),
+            },
+          ],
         },
       ],
       generationConfig: {
-        temperature: 0.6,
+        temperature: 1.3,
+        topK: 64,
+        topP: 0.95,
         responseMimeType: "application/json",
       },
     }),
@@ -73,6 +118,20 @@ async function callGemini(reviewText: string, tone: Tone): Promise<Response> {
       throw new Error("Gemini returned an empty response");
     }
 
+    const trimmedResponse = aiResponse.trim();
+    const trimmedPrevious = previousResponse?.trim();
+
+    if (
+      previousResponse &&
+      trimmedResponse &&
+      trimmedPrevious &&
+      trimmedResponse.toLowerCase() === trimmedPrevious.toLowerCase() &&
+      attempt < 3
+    ) {
+      console.warn("Gemini returned identical text, retrying with new seed");
+      return callGemini(reviewText, tone, randomUUID(), previousResponse, attempt + 1);
+    }
+
     return { text: aiResponse, keyConcerns };
   } catch (error) {
     throw new Error("Failed to parse Gemini response payload");
@@ -91,14 +150,25 @@ function fallbackResponse(reviewText: string, sentiment: string, tone: Tone): Re
       : " Please reach out to our support team if there's anything else we can do.";
 
   return {
-    text: `${base}${apology} We appreciate your detailed feedback about your TV purchase and are already reviewing it with our product specialists.${close}`,
+    text: `${base}${apology} We appreciate your detailed feedback and are already reviewing it with our product specialists.${close}`,
   };
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { reviewId, tone } = body as { reviewId?: string; tone?: Tone };
+    const { reviewId, tone, requestId, previousResponse } = body as {
+      reviewId?: string;
+      tone?: Tone;
+      requestId?: string;
+      previousResponse?: string;
+    };
+
+    console.log("API Request:", { reviewId, tone, requestId, hasPreviousResponse: !!previousResponse });
+    if (previousResponse) {
+        console.log("Previous response length:", previousResponse.length);
+        console.log("Previous response preview:", previousResponse.substring(0, 50));
+    }
 
     if (!reviewId || !tone) {
       return NextResponse.json(
@@ -116,7 +186,12 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      const aiResponse = await callGemini(review.text, tone);
+      const aiResponse = await callGemini(
+        review.text,
+        tone,
+        requestId,
+        previousResponse
+      );
       return NextResponse.json(aiResponse);
     } catch (error) {
       console.error("Gemini call failed, falling back to template:", error);
