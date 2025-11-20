@@ -234,10 +234,10 @@ export default function Home() {
                   {selectedReview && (
                     <>
                       <div className="space-y-3">
-                        <p className="text-sm font-semibold text-cyan-300 uppercase tracking-wide">
+                        <p className="text-base font-bold text-cyan-300 uppercase tracking-wide">
                           Selected review
                         </p>
-                        <div className="glass rounded-xl border border-cyan-400/30 p-4 space-y-2 neon-glow-cyan">
+                        <div className="glass rounded-xl border p-6 space-y-2">
                           <div className="space-y-2 mb-2">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
@@ -245,23 +245,22 @@ export default function Home() {
                                   {selectedReview.customerName}
                                 </span>
                                 <span className="text-yellow-400 text-sm">
-                                  {"★".repeat(selectedReview.rating) +
-                                    "☆".repeat(5 - selectedReview.rating)}
+                                  {"★".repeat(selectedReview.rating) + "☆".repeat(5 - selectedReview.rating)}
                                 </span>
                               </div>
-                              <span className="px-2 py-1 text-xs font-semibold rounded bg-purple-500/20 text-purple-300 border border-purple-400/30 neon-border-magenta">
+                              <span className="px-2 py-1 text-xs font-semibold rounded bg-purple-500/20 text-purple-300 border">
                                 {selectedReview.productModel}
                               </span>
                             </div>
                             <div>
                               {selectedReview.answered && (
-                                <span className="px-2 py-1 text-xs font-semibold rounded bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 neon-border-cyan">
+                                <span className="px-2 py-1 text-xs font-semibold rounded bg-cyan-500/20 text-cyan-300 border">
                                   Answered
                                 </span>
                               )}
                             </div>
                           </div>
-                          <p className="text-cyan-50 leading-relaxed">{selectedReview.text}</p>
+                          <p className="text-cyan-50 leading-relaxed text-base">{selectedReview.text}</p>
                         </div>
                       </div>
 
@@ -274,10 +273,8 @@ export default function Home() {
                         <button
                           onClick={handleGenerate}
                           disabled={!selectedTone || responseMutation.isPending}
-                          className={`w-full md:w-auto px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all duration-300 ${
-                            !selectedTone || responseMutation.isPending
-                              ? "bg-gray-600/50 cursor-not-allowed border border-gray-500/30"
-                              : "bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 neon-glow-cyan-strong hover-neon-glow border border-cyan-400/50"
+                          className={`w-full md:w-auto btn-primary focus-neon-glow ${
+                            !selectedTone || responseMutation.isPending ? "opacity-70 cursor-not-allowed" : ""
                           }`}
                         >
                           {responseMutation.isPending ? "Generating..." : "Generate Response"}
