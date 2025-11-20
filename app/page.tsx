@@ -274,7 +274,7 @@ export default function Home() {
                         <button
                           onClick={handleGenerate}
                           disabled={!selectedTone || responseMutation.isPending}
-                          className={`w-full md:w-48 px-6 py-3 rounded-lg font-semibold text-white transition-all duration-300 ${
+                          className={`w-full md:w-auto px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all duration-300 ${
                             !selectedTone || responseMutation.isPending
                               ? "bg-gray-600/50 cursor-not-allowed border border-gray-500/30"
                               : "bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 neon-glow-cyan-strong hover-neon-glow border border-cyan-400/50"
