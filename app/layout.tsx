@@ -21,7 +21,16 @@ export default function RootLayout({
       <body className={inter.className}>
         <QueryProvider>
           {children}
-          <Toaster />
+          <Toaster
+            position="top-center"
+            richColors
+            toastOptions={{
+              style: {
+                width: "auto",
+                minWidth: "max-content",
+              },
+            }}
+          />
         </QueryProvider>
       </body>
     </html>

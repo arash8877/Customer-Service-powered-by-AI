@@ -106,7 +106,9 @@ export default function Home() {
       setSelectedReviewId(null);
       setSelectedTone(null);
       setGeneratedResponse(null);
-      toast.success("Response accepted successfully!");
+      toast.success("Response Generated Successfully", {
+        duration: 3000,
+      });
     }
   };
 
