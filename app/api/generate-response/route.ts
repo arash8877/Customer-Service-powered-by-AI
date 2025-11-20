@@ -30,6 +30,7 @@ ${previousResponse}
 You are a customer-care specialist drafting a reply to a product review.
 
 Tone: ${tone}
+Company: DanTV
 Variation token: ${requestId ?? "primary"}
 Variation seed: ${variationSeed ?? "none"}
 
