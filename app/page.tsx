@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { ReviewSelector } from "./components/ReviewSelector";
 import { ToneSelector } from "./components/ToneSelector";
 import { ResponseViewer } from "./components/ResponseViewer";
 import { LoadingSpinner } from "./components/LoadingSpinner";
 import { SummaryViewer } from "./components/SummaryViewer";
+import { StatsOverview } from "./components/StatsOverview";
+import { ResponseChecklist } from "./components/ResponseChecklist";
 import { reviews } from "./lib/reviews";
 import { Tone, Response, Filters, SummaryResponse, ProductModelFilter } from "./lib/types";
 import { toast } from "sonner";
@@ -151,39 +153,51 @@ export default function Home() {
     }
   };
 
-  const selectedReview = reviewsState.find((review) => review.id === selectedReviewId);
+  const selectedReview = useMemo(
+    () => reviewsState.find((review) => review.id === selectedReviewId) || null,
+    [reviewsState, selectedReviewId]
+  );
 
-  const totalReviews = reviewsState.length;
-  const answeredCount = reviewsState.filter((review) => review.answered).length;
-  const pendingCount = totalReviews - answeredCount;
-  const negativeCount = reviewsState.filter((review) => review.sentiment === "negative").length;
-  const answerRate = totalReviews === 0 ? 0 : Math.round((answeredCount / totalReviews) * 100);
+  const { totalReviews, answeredCount, pendingCount, negativeCount, answerRate } = useMemo(() => {
+    const total = reviewsState.length;
+    const answered = reviewsState.filter((review) => review.answered).length;
+    const pending = total - answered;
+    const negatives = reviewsState.filter((review) => review.sentiment === "negative").length;
+    const rate = total === 0 ? 0 : Math.round((answered / total) * 100);
+    return {
+      totalReviews: total,
+      answeredCount: answered,
+      pendingCount: pending,
+      negativeCount: negatives,
+      answerRate: rate,
+    };
+  }, [reviewsState]);
 
-  const normalizedSearch = searchTerm.trim().toLowerCase();
+  const filteredReviews = useMemo(() => {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
 
-  const filteredReviews = reviewsState.filter((review) => {
-    // Apply status/sentiment filter
-    let statusMatch = true;
-    if (filters.status === "answered") statusMatch = review.answered === true;
-    else if (filters.status === "positive") statusMatch = review.sentiment === "positive";
-    else if (filters.status === "negative") statusMatch = review.sentiment === "negative";
-    else if (filters.status === "neutral") statusMatch = review.sentiment === "neutral";
-    
-    // Apply product model filter
-    let productMatch = true;
-    if (filters.productModel === "model-1") productMatch = review.productModel === "TV-Model 1";
-    else if (filters.productModel === "model-2") productMatch = review.productModel === "TV-Model 2";
-    else if (filters.productModel === "model-3") productMatch = review.productModel === "TV-Model 3";
-    else if (filters.productModel === "model-4") productMatch = review.productModel === "TV-Model 4";
-    
-    const searchMatch =
-      normalizedSearch.length === 0 ||
-      review.customerName.toLowerCase().includes(normalizedSearch) ||
-      review.productModel.toLowerCase().includes(normalizedSearch) ||
-      review.text.toLowerCase().includes(normalizedSearch);
-    
-    return statusMatch && productMatch && searchMatch;
-  });
+    return reviewsState.filter((review) => {
+      let statusMatch = true;
+      if (filters.status === "answered") statusMatch = review.answered === true;
+      else if (filters.status === "positive") statusMatch = review.sentiment === "positive";
+      else if (filters.status === "negative") statusMatch = review.sentiment === "negative";
+      else if (filters.status === "neutral") statusMatch = review.sentiment === "neutral";
+      
+      let productMatch = true;
+      if (filters.productModel === "model-1") productMatch = review.productModel === "TV-Model 1";
+      else if (filters.productModel === "model-2") productMatch = review.productModel === "TV-Model 2";
+      else if (filters.productModel === "model-3") productMatch = review.productModel === "TV-Model 3";
+      else if (filters.productModel === "model-4") productMatch = review.productModel === "TV-Model 4";
+      
+      const searchMatch =
+        normalizedSearch.length === 0 ||
+        review.customerName.toLowerCase().includes(normalizedSearch) ||
+        review.productModel.toLowerCase().includes(normalizedSearch) ||
+        review.text.toLowerCase().includes(normalizedSearch);
+      
+      return statusMatch && productMatch && searchMatch;
+    });
+  }, [filters.productModel, filters.status, reviewsState, searchTerm]);
 
   return (
     <main className="min-h-screen bg-dark-gradient py-8 px-4 sm:px-5 lg:px-6">
@@ -196,36 +210,13 @@ export default function Home() {
           <p className="text-lg text-cyan-100/80">AI-powered responses to customer reviews</p>
         </div>
 
-        {/* Quick health overview */}
-        <div className="grid gap-6 mb-6 lg:grid-cols-[320px,1fr] items-stretch">
-          <div className="glass-card rounded-2xl p-4 border border-blue-400/30 h-full">
-            <p className="text-xs uppercase text-blue-100/70 font-semibold">Total reviews</p>
-            <p className="text-3xl font-bold text-blue-200 mt-2">{totalReviews}</p>
-            <p className="text-[11px] text-blue-100/70">Across all products</p>
-          </div>
-          <div className="grid gap-3 lg:grid-cols-3">
-            <div className="glass-card rounded-2xl p-4 border border-emerald-400/30">
-              <p className="text-xs uppercase text-emerald-100/70 font-semibold">Answer rate</p>
-              <div className="flex items-baseline gap-2 mt-2">
-                <p className="text-3xl font-bold text-emerald-200">{answerRate}%</p>
-                <span className="text-sm text-emerald-100/80">{answeredCount} answered</span>
-              </div>
-              <div className="mt-2 h-2 w-full rounded-full bg-white/10">
-                <div className="h-2 rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400" style={{ width: `${answerRate}%` }} />
-              </div>
-            </div>
-            <div className="glass-card rounded-2xl p-4 border border-pink-400/30">
-              <p className="text-xs uppercase text-pink-100/70 font-semibold">Priority negatives</p>
-              <p className="text-3xl font-bold text-pink-200 mt-2">{negativeCount}</p>
-              <p className="text-[11px] text-pink-100/70">Flagged for quick follow-up</p>
-            </div>
-            <div className="glass-card rounded-2xl p-4 border border-cyan-400/30">
-              <p className="text-xs uppercase text-cyan-100/70 font-semibold">Pending responses</p>
-              <p className="text-3xl font-bold text-cyan-200 mt-2">{pendingCount}</p>
-              <p className="text-[11px] text-cyan-100/60">Reviews that still need action</p>
-            </div>
-          </div>
-        </div>
+        <StatsOverview
+          totalReviews={totalReviews}
+          pendingCount={pendingCount}
+          answeredCount={answeredCount}
+          negativeCount={negativeCount}
+          answerRate={answerRate}
+        />
 
         <div className="grid gap-6 lg:grid-cols-[320px,1fr]">
           {/* Review Selection Panel */}
@@ -269,40 +260,11 @@ export default function Home() {
 
             <div className="p-6">
               {activeTab === "response" && (
-                <div className="grid gap-3 sm:grid-cols-3 mb-6">
-                  {[
-                    {
-                      title: "1. Select review",
-                      description: "Pick a customer review to work on",
-                      active: !!selectedReview,
-                    },
-                    {
-                      title: "2. Choose tone",
-                      description: "Match the tone to the situation",
-                      active: !!selectedTone,
-                    },
-                    {
-                      title: "3. Generate",
-                      description: "Create, edit, and accept the reply",
-                      active: !!generatedResponse,
-                    },
-                  ].map((item, index) => (
-                    <div
-                      key={item.title}
-                      className={`rounded-xl border p-3 text-sm glass transition-all ${
-                        item.active ? "border-cyan-400/50 neon-glow-cyan-strong" : "border-white/10"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="w-6 h-6 flex items-center justify-center rounded-full bg-white/10 text-cyan-200 text-xs font-bold">
-                          {index + 1}
-                        </span>
-                        <p className="font-semibold text-cyan-50">{item.title}</p>
-                      </div>
-                      <p className="text-cyan-100/70 mt-1">{item.description}</p>
-                    </div>
-                  ))}
-                </div>
+                <ResponseChecklist
+                  hasSelectedReview={!!selectedReview}
+                  hasTone={!!selectedTone}
+                  hasGeneratedResponse={!!generatedResponse}
+                />
               )}
 
               {activeTab === "response" ? (
