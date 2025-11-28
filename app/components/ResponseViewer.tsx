@@ -19,12 +19,14 @@ export function ResponseViewer({
   const [isEditing, setIsEditing] = useState(false);
   const [editedText, setEditedText] = useState("");
   const [savedText, setSavedText] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   // Reset saved text when response changes (new generation)
   useEffect(() => {
     if (response) {
       setSavedText(null);
       setIsEditing(false);
+      setCopied(false);
     }
   }, [response?.text]);
 
@@ -63,9 +65,36 @@ export function ResponseViewer({
     onRegenerate();
   };
 
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(displayText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (error) {
+      console.error("Failed to copy response", error);
+    }
+  };
+
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold text-cyan-200">Generated Response</h2>
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-2xl font-bold text-cyan-200">Generated Response</h2>
+        <div className="flex items-center gap-2 text-xs">
+          <span className="px-2 py-1 rounded-full bg-cyan-500/15 border border-cyan-400/30 text-cyan-100">
+            AI draft
+          </span>
+          {isEditing && (
+            <span className="px-2 py-1 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-100">
+              Editing
+            </span>
+          )}
+          {savedText && !isEditing && (
+            <span className="px-2 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/40 text-emerald-100">
+              Edited version
+            </span>
+          )}
+        </div>
+      </div>
 
       {response.keyConcerns && response.keyConcerns.length > 0 && (
         <div className="glass-card border border-cyan-400/30 rounded-xl p-4 neon-glow-cyan">
@@ -128,6 +157,12 @@ export function ResponseViewer({
               Edit Manually
             </button>
             <button
+              onClick={handleCopy}
+              className="px-4 py-2 bg-white/10 text-cyan-100 rounded-lg border border-cyan-400/30 hover:border-cyan-300 transition-all"
+            >
+              {copied ? "Copied" : "Copy"}
+            </button>
+            <button
               onClick={onAccept}
               className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg hover:from-emerald-400 hover:to-teal-400 transition-all duration-300 neon-glow-blue"
             >
@@ -139,4 +174,3 @@ export function ResponseViewer({
     </div>
   );
 }
-

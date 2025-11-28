@@ -55,6 +55,7 @@ async function generateSummary(productModel?: string): Promise<SummaryResponse> 
 export default function Home() {
   const [reviewsState, setReviewsState] = useState(reviews);
   const [filters, setFilters] = useState<Filters>({ status: "all", productModel: "all" });
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
   const [selectedTone, setSelectedTone] = useState<Tone | null>(null);
   const [generatedResponse, setGeneratedResponse] = useState<Response | null>(null);
@@ -82,7 +83,7 @@ export default function Home() {
     },
     onError: (error) => {
       console.error("Error generating response:", error);
-      alert("Failed to generate response. Please try again.");
+      toast.error("Failed to generate response. Please try again.");
     },
   });
 
@@ -110,7 +111,7 @@ export default function Home() {
 
   const handleGenerate = () => {
     if (!selectedReviewId || !selectedTone) {
-      alert("Please select a review and tone first.");
+      toast.error("Pick a review and tone first.");
       return;
     }
 
@@ -152,6 +153,14 @@ export default function Home() {
 
   const selectedReview = reviewsState.find((review) => review.id === selectedReviewId);
 
+  const totalReviews = reviewsState.length;
+  const answeredCount = reviewsState.filter((review) => review.answered).length;
+  const pendingCount = totalReviews - answeredCount;
+  const negativeCount = reviewsState.filter((review) => review.sentiment === "negative").length;
+  const answerRate = totalReviews === 0 ? 0 : Math.round((answeredCount / totalReviews) * 100);
+
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+
   const filteredReviews = reviewsState.filter((review) => {
     // Apply status/sentiment filter
     let statusMatch = true;
@@ -167,11 +176,17 @@ export default function Home() {
     else if (filters.productModel === "model-3") productMatch = review.productModel === "TV-Model 3";
     else if (filters.productModel === "model-4") productMatch = review.productModel === "TV-Model 4";
     
-    return statusMatch && productMatch;
+    const searchMatch =
+      normalizedSearch.length === 0 ||
+      review.customerName.toLowerCase().includes(normalizedSearch) ||
+      review.productModel.toLowerCase().includes(normalizedSearch) ||
+      review.text.toLowerCase().includes(normalizedSearch);
+    
+    return statusMatch && productMatch && searchMatch;
   });
 
   return (
-    <main className="min-h-screen bg-dark-gradient py-8 px-4 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-dark-gradient py-8 px-4 sm:px-5 lg:px-6">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold mb-2">
@@ -180,6 +195,36 @@ export default function Home() {
           </h1>
           <p className="text-lg text-cyan-100/80">AI-powered responses to customer reviews</p>
         </div>
+
+        {/* Quick health overview */}
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+          <div className="glass-card rounded-2xl p-4 border border-cyan-400/30">
+            <p className="text-xs uppercase text-cyan-100/70 font-semibold">Pending responses</p>
+            <p className="text-3xl font-bold text-cyan-200 mt-2">{pendingCount}</p>
+            <p className="text-[11px] text-cyan-100/60">Reviews that still need action</p>
+          </div>
+          <div className="glass-card rounded-2xl p-4 border border-emerald-400/30">
+            <p className="text-xs uppercase text-emerald-100/70 font-semibold">Answer rate</p>
+            <div className="flex items-baseline gap-2 mt-2">
+              <p className="text-3xl font-bold text-emerald-200">{answerRate}%</p>
+              <span className="text-sm text-emerald-100/80">{answeredCount} answered</span>
+            </div>
+            <div className="mt-2 h-2 w-full rounded-full bg-white/10">
+              <div className="h-2 rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400" style={{ width: `${answerRate}%` }} />
+            </div>
+          </div>
+          <div className="glass-card rounded-2xl p-4 border border-pink-400/30">
+            <p className="text-xs uppercase text-pink-100/70 font-semibold">Priority negatives</p>
+            <p className="text-3xl font-bold text-pink-200 mt-2">{negativeCount}</p>
+            <p className="text-[11px] text-pink-100/70">Flagged for quick follow-up</p>
+          </div>
+          <div className="glass-card rounded-2xl p-4 border border-blue-400/30">
+            <p className="text-xs uppercase text-blue-100/70 font-semibold">Total reviews</p>
+            <p className="text-3xl font-bold text-blue-200 mt-2">{totalReviews}</p>
+            <p className="text-[11px] text-blue-100/70">Across all products</p>
+          </div>
+        </div>
+
         <div className="grid gap-6 lg:grid-cols-[320px,1fr]">
           {/* Review Selection Panel */}
           <section className="glass-card rounded-2xl p-4 lg:p-6 h-fit animate-fade-in-glass">
@@ -189,6 +234,8 @@ export default function Home() {
               onSelectReview={handleSelectReview}
               filters={filters}
               onFiltersChange={setFilters}
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
             />
           </section>
 
@@ -219,6 +266,43 @@ export default function Home() {
             </div>
 
             <div className="p-6">
+              {activeTab === "response" && (
+                <div className="grid gap-3 sm:grid-cols-3 mb-6">
+                  {[
+                    {
+                      title: "1. Select review",
+                      description: "Pick a customer review to work on",
+                      active: !!selectedReview,
+                    },
+                    {
+                      title: "2. Choose tone",
+                      description: "Match the tone to the situation",
+                      active: !!selectedTone,
+                    },
+                    {
+                      title: "3. Generate",
+                      description: "Create, edit, and accept the reply",
+                      active: !!generatedResponse,
+                    },
+                  ].map((item, index) => (
+                    <div
+                      key={item.title}
+                      className={`rounded-xl border p-3 text-sm glass transition-all ${
+                        item.active ? "border-cyan-400/50 neon-glow-cyan-strong" : "border-white/10"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="w-6 h-6 flex items-center justify-center rounded-full bg-white/10 text-cyan-200 text-xs font-bold">
+                          {index + 1}
+                        </span>
+                        <p className="font-semibold text-cyan-50">{item.title}</p>
+                      </div>
+                      <p className="text-cyan-100/70 mt-1">{item.description}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {activeTab === "response" ? (
                 <div className="space-y-6">
                   {!selectedReview && (
@@ -300,7 +384,7 @@ export default function Home() {
                 </div>
               ) : (
                 <SummaryViewer
-                  data={summaryData!}
+                  data={summaryData}
                   isLoading={summaryMutation.isPending}
                   selectedProduct={selectedSummaryProduct}
                   onProductChange={setSelectedSummaryProduct}

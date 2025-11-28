@@ -1,7 +1,7 @@
 import { SummaryResponse, ProductModelFilter } from "@/app/lib/types";
 
 interface SummaryViewerProps {
-  data: SummaryResponse;
+  data?: SummaryResponse | null;
   isLoading: boolean;
   onGenerate: () => void;
   selectedProduct: ProductModelFilter;
@@ -9,7 +9,14 @@ interface SummaryViewerProps {
   generatedForProduct: ProductModelFilter | null;
 }
 
-export function SummaryViewer({ data, isLoading, onGenerate, selectedProduct, onProductChange, generatedForProduct }: SummaryViewerProps) {
+export function SummaryViewer({
+  data,
+  isLoading,
+  onGenerate,
+  selectedProduct,
+  onProductChange,
+  generatedForProduct,
+}: SummaryViewerProps) {
   if (!data && !isLoading) {
     return (
       <div className="flex flex-col items-center justify-center text-center text-cyan-100/60 min-h-[300px] space-y-4">
@@ -56,6 +63,10 @@ export function SummaryViewer({ data, isLoading, onGenerate, selectedProduct, on
     );
   }
 
+  if (!data) {
+    return null;
+  }
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Product Selector */}
@@ -77,24 +88,26 @@ export function SummaryViewer({ data, isLoading, onGenerate, selectedProduct, on
             <option value="model-4">TV-Model 4</option>
           </select>
         </div>
-        {selectedProduct === generatedForProduct ? (
-          <button
-            onClick={onGenerate}
-            className="mt-6 px-4 py-2 text-sm text-cyan-300 hover:text-cyan-100 font-medium transition-colors flex items-center gap-2"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Refresh Analysis
-          </button>
-        ) : (
-          <button
-            onClick={onGenerate}
-            className="mt-6 px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg font-semibold hover:from-cyan-400 hover:to-blue-400 transition-all duration-300 neon-glow-cyan-strong"
-          >
-            Generate Summary
-          </button>
-        )}
+        <div className="flex items-end gap-3">
+          {selectedProduct === generatedForProduct ? (
+            <button
+              onClick={onGenerate}
+              className="mt-6 px-4 py-2 text-sm text-cyan-300 hover:text-cyan-100 font-medium transition-colors flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Refresh Analysis
+            </button>
+          ) : (
+            <button
+              onClick={onGenerate}
+              className="mt-6 px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg font-semibold hover:from-cyan-400 hover:to-blue-400 transition-all duration-300 neon-glow-cyan-strong"
+            >
+              Generate Summary
+            </button>
+          )}
+        </div>
       </div>
       
       {/* Executive Summary */}

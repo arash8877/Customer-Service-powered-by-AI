@@ -22,6 +22,9 @@ export function ToneSelector({
         className="block text-sm font-medium text-cyan-200">
         Select Response Tone
       </label>
+      <p className="text-xs text-cyan-100/70">
+        Align the AI draft to the customer sentiment before generating.
+      </p>
       <select
         id="tone-select"
         value={selectedTone || ""}
@@ -43,4 +46,3 @@ export function ToneSelector({
     </div>
   );
 }
-
