@@ -10,13 +10,7 @@ import { EmailSummaryViewer } from "../components/EmailSummaryViewer";
 import { EmailStatsOverview } from "../components/EmailStatsOverview";
 import { EmailResponseChecklist } from "../components/EmailResponseChecklist";
 import { customerEmails } from "../lib/emails";
-import {
-  Tone,
-  Response,
-  EmailFilters,
-  SummaryResponse,
-  ProductModelFilter,
-} from "../lib/types";
+import { Tone, Response, EmailFilters, SummaryResponse, ProductModelFilter } from "../lib/types";
 import { toast } from "sonner";
 
 async function generateEmailResponse(
@@ -176,21 +170,27 @@ export default function EmailsPage() {
     };
   }, [emailsState]);
 
+  const productFilterMap: Record<ProductModelFilter, string | undefined> = {
+    all: undefined,
+    "model-1": "TV-Model 1",
+    "model-2": "TV-Model 2",
+    "model-3": "TV-Model 3",
+    "model-4": "TV-Model 4",
+  };
+
   const filteredEmails = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
+    const targetProduct = productFilterMap[filters.productModel];
 
     return emailsState.filter((email) => {
-      let statusMatch = true;
-      if (filters.status === "answered") statusMatch = email.answered === true;
-      else if (filters.status === "priority-high") statusMatch = email.priority === "high";
-      else if (filters.status === "priority-medium") statusMatch = email.priority === "medium";
-      else if (filters.status === "priority-low") statusMatch = email.priority === "low";
+      const statusMatch =
+        filters.status === "all" ||
+        (filters.status === "answered" && email.answered === true) ||
+        (filters.status === "priority-high" && email.priority === "high") ||
+        (filters.status === "priority-medium" && email.priority === "medium") ||
+        (filters.status === "priority-low" && email.priority === "low");
 
-      let productMatch = true;
-      if (filters.productModel === "model-1") productMatch = email.productModel === "TV-Model 1";
-      else if (filters.productModel === "model-2") productMatch = email.productModel === "TV-Model 2";
-      else if (filters.productModel === "model-3") productMatch = email.productModel === "TV-Model 3";
-      else if (filters.productModel === "model-4") productMatch = email.productModel === "TV-Model 4";
+      const productMatch = !targetProduct || email.productModel === targetProduct;
 
       const searchMatch =
         normalizedSearch.length === 0 ||

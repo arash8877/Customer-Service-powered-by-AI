@@ -156,7 +156,7 @@ function ActionButtons({
         onClick={onAccept}
         className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg hover:from-emerald-400 hover:to-teal-400 transition-all duration-300 neon-glow-blue"
       >
-        Accept
+        Send
       </button>
     </div>
   );
