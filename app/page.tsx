@@ -187,7 +187,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-dark-gradient py-8 px-4 sm:px-5 lg:px-6">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-8xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold mb-2">
             <span className="neon-text-cyan">Review Response</span>{" "}
