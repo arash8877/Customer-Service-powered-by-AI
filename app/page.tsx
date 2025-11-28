@@ -198,10 +198,10 @@ export default function Home() {
 
         {/* Quick health overview */}
         <div className="grid gap-6 mb-6 lg:grid-cols-[320px,1fr] items-stretch">
-          <div className="glass-card rounded-2xl p-4 border border-cyan-400/30 h-full">
-            <p className="text-xs uppercase text-cyan-100/70 font-semibold">Pending responses</p>
-            <p className="text-3xl font-bold text-cyan-200 mt-2">{pendingCount}</p>
-            <p className="text-[11px] text-cyan-100/60">Reviews that still need action</p>
+          <div className="glass-card rounded-2xl p-4 border border-blue-400/30 h-full">
+            <p className="text-xs uppercase text-blue-100/70 font-semibold">Total reviews</p>
+            <p className="text-3xl font-bold text-blue-200 mt-2">{totalReviews}</p>
+            <p className="text-[11px] text-blue-100/70">Across all products</p>
           </div>
           <div className="grid gap-3 lg:grid-cols-3">
             <div className="glass-card rounded-2xl p-4 border border-emerald-400/30">
@@ -219,10 +219,10 @@ export default function Home() {
               <p className="text-3xl font-bold text-pink-200 mt-2">{negativeCount}</p>
               <p className="text-[11px] text-pink-100/70">Flagged for quick follow-up</p>
             </div>
-            <div className="glass-card rounded-2xl p-4 border border-blue-400/30">
-              <p className="text-xs uppercase text-blue-100/70 font-semibold">Total reviews</p>
-              <p className="text-3xl font-bold text-blue-200 mt-2">{totalReviews}</p>
-              <p className="text-[11px] text-blue-100/70">Across all products</p>
+            <div className="glass-card rounded-2xl p-4 border border-cyan-400/30">
+              <p className="text-xs uppercase text-cyan-100/70 font-semibold">Pending responses</p>
+              <p className="text-3xl font-bold text-cyan-200 mt-2">{pendingCount}</p>
+              <p className="text-[11px] text-cyan-100/60">Reviews that still need action</p>
             </div>
           </div>
         </div>
