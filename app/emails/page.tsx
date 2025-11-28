@@ -154,6 +154,20 @@ export default function EmailsPage() {
     () => emailsState.find((email) => email.id === selectedEmailId) || null,
     [emailsState, selectedEmailId]
   );
+  const recommendedTone = useMemo(() => {
+    if (!selectedEmail) return null;
+
+    if (selectedEmail.sentiment === "negative") {
+      return { tone: "Apologetic" as Tone, reason: "Customer reports an issue" };
+    }
+    if (selectedEmail.priority === "high") {
+      return { tone: "Formal" as Tone, reason: "High-priority request needs authority" };
+    }
+    if (selectedEmail.sentiment === "positive") {
+      return { tone: "Friendly" as Tone, reason: "Positive feedback deserves warmth" };
+    }
+    return { tone: "Neutral/Professional" as Tone, reason: "General inquiry" };
+  }, [selectedEmail]);
 
   const { totalEmails, answeredCount, pendingCount, negativeCount, answerRate } = useMemo(() => {
     const total = emailsState.length;
@@ -289,9 +303,16 @@ export default function EmailsPage() {
                           <div className="space-y-2 mb-2">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
-                                <span className="text-sm font-medium text-cyan-100">
-                                  {selectedEmail.customerName}
-                                </span>
+                                <div className="flex flex-col gap-1">
+                                  <span className="text-sm font-medium text-cyan-100">
+                                    {selectedEmail.customerName}
+                                  </span>
+                                  {selectedEmail.answered && (
+                                    <span className="px-2 py-1 text-xs font-semibold rounded bg-cyan-500/20 text-cyan-300 border">
+                                      Responded
+                                    </span>
+                                  )}
+                                </div>
                                 <span className={`px-2 py-1 text-xs font-semibold rounded border ${selectedEmail.priority === "high" ? "bg-red-500/20 text-red-200 border-red-400/40" : selectedEmail.priority === "medium" ? "bg-amber-500/20 text-amber-200 border-amber-400/30" : "bg-emerald-500/20 text-emerald-200 border-emerald-400/30"}`}>
                                   {selectedEmail.priority} priority
                                 </span>
@@ -302,11 +323,6 @@ export default function EmailsPage() {
                             </div>
                             <div className="flex items-center justify-between">
                               <p className="text-cyan-100 font-semibold">{selectedEmail.subject}</p>
-                              {selectedEmail.answered && (
-                                <span className="px-2 py-1 text-xs font-semibold rounded bg-cyan-500/20 text-cyan-300 border">
-                                  Responded
-                                </span>
-                              )}
                             </div>
                           </div>
                           <p className="text-cyan-50 leading-relaxed text-base whitespace-pre-wrap">{selectedEmail.body}</p>
@@ -318,6 +334,9 @@ export default function EmailsPage() {
                           selectedTone={selectedTone}
                           onSelectTone={setSelectedTone}
                           disabled={!selectedEmail}
+                          recommendedTone={recommendedTone?.tone || null}
+                          recommendationReason={recommendedTone?.reason}
+                          onUseRecommended={(tone) => setSelectedTone(tone)}
                         />
                         <button
                           onClick={handleGenerate}

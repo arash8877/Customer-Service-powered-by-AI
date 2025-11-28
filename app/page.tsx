@@ -62,7 +62,6 @@ export default function Home() {
   const [selectedTone, setSelectedTone] = useState<Tone | null>(null);
   const [generatedResponse, setGeneratedResponse] = useState<Response | null>(null);
   
-  // New state for tabs and summary
   const [activeTab, setActiveTab] = useState<"response" | "summary">("response");
   const [summaryData, setSummaryData] = useState<SummaryResponse | null>(null);
   const [selectedSummaryProduct, setSelectedSummaryProduct] = useState<ProductModelFilter>("all");
@@ -157,6 +156,17 @@ export default function Home() {
     () => reviewsState.find((review) => review.id === selectedReviewId) || null,
     [reviewsState, selectedReviewId]
   );
+  const recommendedTone = useMemo(() => {
+    if (!selectedReview) return null;
+
+    if (selectedReview.sentiment === "negative") {
+      return { tone: "Apologetic" as Tone, reason: "Customer sentiment is negative" };
+    }
+    if (selectedReview.rating >= 4) {
+      return { tone: "Friendly" as Tone, reason: "High rating suggests a warm thank you" };
+    }
+    return { tone: "Neutral/Professional" as Tone, reason: "Balanced or mixed feedback" };
+  }, [selectedReview]);
 
   const { totalReviews, answeredCount, pendingCount, negativeCount, answerRate } = useMemo(() => {
     const total = reviewsState.length;
@@ -317,6 +327,9 @@ export default function Home() {
                           selectedTone={selectedTone}
                           onSelectTone={setSelectedTone}
                           disabled={!selectedReview}
+                          recommendedTone={recommendedTone?.tone || null}
+                          recommendationReason={recommendedTone?.reason}
+                          onUseRecommended={(tone) => setSelectedTone(tone)}
                         />
                         <button
                           onClick={handleGenerate}

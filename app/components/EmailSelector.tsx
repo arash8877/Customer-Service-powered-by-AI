@@ -123,18 +123,20 @@ function EmailItem({ email, isSelected, onSelect }: EmailItemProps) {
       }`}
     >
       <div className="flex items-start justify-between mb-2">
-        <span className="text-sm font-medium text-cyan-100">
-          {email.customerName}
-        </span>
+        <div className="flex flex-col gap-1">
+          <span className="text-sm font-medium text-cyan-100">
+            {email.customerName}
+          </span>
+          {email.answered && (
+            <span className="px-2 py-0.5 text-[10px] font-semibold rounded border bg-cyan-500/20 text-cyan-300 border-cyan-400/30 neon-border-cyan w-fit">
+              Responded
+            </span>
+          )}
+        </div>
         <div className="flex flex-col items-end gap-1">
           <span className={`px-2 py-0.5 text-[10px] font-semibold rounded border ${priorityColors[email.priority]} neon-border-cyan`}>
             {email.priority} priority
           </span>
-          {email.answered && (
-            <span className="px-2 py-0.5 text-[10px] font-semibold rounded border bg-cyan-500/20 text-cyan-300 border-cyan-400/30 neon-border-cyan">
-              Responded
-            </span>
-          )}
         </div>
       </div>
       <p className="text-sm text-cyan-50 font-semibold line-clamp-1">
