@@ -7,9 +7,15 @@ export type EmailPriority = "low" | "medium" | "high";
 
 export type StatusFilter = "all" | "answered" | "positive" | "negative" | "neutral";
 export type ProductModelFilter = "all" | "model-1" | "model-2" | "model-3" | "model-4";
+export type EmailStatusFilter = "all" | "answered" | "priority-high" | "priority-medium" | "priority-low";
 
 export interface Filters {
   status: StatusFilter;
+  productModel: ProductModelFilter;
+}
+
+export interface EmailFilters {
+  status: EmailStatusFilter;
   productModel: ProductModelFilter;
 }
 

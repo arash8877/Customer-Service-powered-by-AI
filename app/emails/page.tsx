@@ -10,7 +10,13 @@ import { EmailSummaryViewer } from "../components/EmailSummaryViewer";
 import { EmailStatsOverview } from "../components/EmailStatsOverview";
 import { EmailResponseChecklist } from "../components/EmailResponseChecklist";
 import { customerEmails } from "../lib/emails";
-import { Tone, Response, Filters, SummaryResponse, ProductModelFilter } from "../lib/types";
+import {
+  Tone,
+  Response,
+  EmailFilters,
+  SummaryResponse,
+  ProductModelFilter,
+} from "../lib/types";
 import { toast } from "sonner";
 
 async function generateEmailResponse(
@@ -56,7 +62,7 @@ async function generateEmailSummary(productModel?: string): Promise<SummaryRespo
 
 export default function EmailsPage() {
   const [emailsState, setEmailsState] = useState(customerEmails);
-  const [filters, setFilters] = useState<Filters>({ status: "all", productModel: "all" });
+  const [filters, setFilters] = useState<EmailFilters>({ status: "all", productModel: "all" });
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
   const [selectedTone, setSelectedTone] = useState<Tone | null>(null);
@@ -176,9 +182,9 @@ export default function EmailsPage() {
     return emailsState.filter((email) => {
       let statusMatch = true;
       if (filters.status === "answered") statusMatch = email.answered === true;
-      else if (filters.status === "positive") statusMatch = email.sentiment === "positive";
-      else if (filters.status === "negative") statusMatch = email.sentiment === "negative";
-      else if (filters.status === "neutral") statusMatch = email.sentiment === "neutral";
+      else if (filters.status === "priority-high") statusMatch = email.priority === "high";
+      else if (filters.status === "priority-medium") statusMatch = email.priority === "medium";
+      else if (filters.status === "priority-low") statusMatch = email.priority === "low";
 
       let productMatch = true;
       if (filters.productModel === "model-1") productMatch = email.productModel === "TV-Model 1";

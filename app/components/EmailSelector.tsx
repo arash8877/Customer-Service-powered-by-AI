@@ -1,20 +1,25 @@
 "use client";
 
-import { CustomerEmail, Filters, ProductModelFilter, StatusFilter } from "@/app/lib/types";
+import {
+  CustomerEmail,
+  EmailFilters,
+  EmailStatusFilter,
+  ProductModelFilter,
+} from "@/app/lib/types";
 
 interface EmailSelectorProps {
   emails: CustomerEmail[];
   selectedEmailId: string | null;
   onSelectEmail: (emailId: string) => void;
-  filters: Filters;
-  onFiltersChange: (filters: Filters) => void;
+  filters: EmailFilters;
+  onFiltersChange: (filters: EmailFilters) => void;
   searchTerm: string;
   onSearchChange: (value: string) => void;
 }
 
 interface FiltersProps {
-  filters: Filters;
-  onFiltersChange: (filters: Filters) => void;
+  filters: EmailFilters;
+  onFiltersChange: (filters: EmailFilters) => void;
   searchTerm: string;
   onSearchChange: (value: string) => void;
 }
@@ -60,14 +65,14 @@ function FiltersPanel({ filters, onFiltersChange, searchTerm, onSearchChange }: 
         <select
           id="status-filter"
           value={filters.status}
-          onChange={(e) => onFiltersChange({ ...filters, status: e.target.value as StatusFilter })}
+          onChange={(e) => onFiltersChange({ ...filters, status: e.target.value as EmailStatusFilter })}
           className="w-full px-3 py-2 text-sm border border-cyan-400/30 rounded-md bg-white/5 text-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm"
         >
           <option value="all">All emails</option>
           <option value="answered">Responded</option>
-          <option value="positive">Positive</option>
-          <option value="negative">Negative</option>
-          <option value="neutral">Neutral</option>
+          <option value="priority-high">High priority</option>
+          <option value="priority-medium">Medium priority</option>
+          <option value="priority-low">Low priority</option>
         </select>
       </div>
 
@@ -117,25 +122,20 @@ function EmailItem({ email, isSelected, onSelect }: EmailItemProps) {
           : "glass border-white/10 hover:border-cyan-400/30 hover:neon-glow-cyan"
       }`}
     >
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-start justify-between mb-2">
         <span className="text-sm font-medium text-cyan-100">
           {email.customerName}
         </span>
-        <span className={`px-2 py-0.5 text-[10px] font-semibold rounded border ${priorityColors[email.priority]} neon-border-cyan`}>
-          {email.priority} priority
-        </span>
-      </div>
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col items-end gap-1">
+          <span className={`px-2 py-0.5 text-[10px] font-semibold rounded border ${priorityColors[email.priority]} neon-border-cyan`}>
+            {email.priority} priority
+          </span>
           {email.answered && (
             <span className="px-2 py-0.5 text-[10px] font-semibold rounded border bg-cyan-500/20 text-cyan-300 border-cyan-400/30 neon-border-cyan">
               Responded
             </span>
           )}
         </div>
-        <span className="px-2 py-0.5 text-[10px] font-semibold rounded border bg-purple-500/20 text-purple-300 border-purple-400/30 neon-border-magenta">
-          {email.productModel}
-        </span>
       </div>
       <p className="text-sm text-cyan-50 font-semibold line-clamp-1">
         {email.subject}
