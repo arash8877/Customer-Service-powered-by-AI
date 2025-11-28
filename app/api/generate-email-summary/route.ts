@@ -80,6 +80,13 @@ export async function POST(request: Request) {
       ? customerEmails.filter((email) => email.productModel === productModel)
       : customerEmails;
 
+    if (filteredEmails.length === 0) {
+      return NextResponse.json(
+        { error: "No emails available for the selected product." },
+        { status: 400 }
+      );
+    }
+
     const allEmailText = filteredEmails
       .map(
         (email) =>

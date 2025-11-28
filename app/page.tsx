@@ -66,6 +66,11 @@ export default function Home() {
   const [summaryData, setSummaryData] = useState<SummaryResponse | null>(null);
   const [selectedSummaryProduct, setSelectedSummaryProduct] = useState<ProductModelFilter>("all");
   const [generatedForProduct, setGeneratedForProduct] = useState<ProductModelFilter | null>(null);
+  const handleSummaryProductChange = (product: ProductModelFilter) => {
+    setSelectedSummaryProduct(product);
+    setSummaryData(null);
+    setGeneratedForProduct(null);
+  };
 
   const responseMutation = useMutation({
     mutationFn: ({
@@ -364,7 +369,7 @@ export default function Home() {
                   data={summaryData}
                   isLoading={summaryMutation.isPending}
                   selectedProduct={selectedSummaryProduct}
-                  onProductChange={setSelectedSummaryProduct}
+                  onProductChange={handleSummaryProductChange}
                   generatedForProduct={generatedForProduct}
                   onGenerate={() => {
                     // Determine product model based on selected product in Summary tab

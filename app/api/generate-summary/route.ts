@@ -81,6 +81,13 @@ export async function POST(request: Request) {
       ? reviews.filter((r) => r.productModel === productModel)
       : reviews;
 
+    if (filteredReviews.length === 0) {
+      return NextResponse.json(
+        { error: "No reviews available for the selected product." },
+        { status: 400 }
+      );
+    }
+
     const allReviewsText = filteredReviews
       .map((r) => `Review (Rating: ${r.rating}/5): ${r.text}`)
       .join("\n\n");
