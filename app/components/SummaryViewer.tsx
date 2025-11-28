@@ -18,7 +18,7 @@ interface ProductSelectProps {
 function ProductSelect({ value, onChange, id = "product-select" }: ProductSelectProps) {
   return (
     <div className="flex-1 max-w-xs">
-      <label htmlFor={id} className="block text-sm font-medium text-cyan-200 mb-2">
+      <label htmlFor={id} className="block text-sm font-medium text-cyan-200 mb-2 text-left">
         Select Product
       </label>
       <select
@@ -104,22 +104,24 @@ export function SummaryViewer({
 }: SummaryViewerProps) {
   if (!data && !isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center text-center text-cyan-100/60 min-h-[300px] space-y-4">
+      <div className="flex flex-col items-center justify-center text-center text-cyan-100/60 min-h-[320px] space-y-5">
         <p className="text-xl font-semibold text-cyan-200">No summary generated yet</p>
         <p className="max-w-md text-cyan-100/70">
-          Select a product and generate an AI-powered summary to get insights from customer reviews.
+          Select a product or keep it broad to see a cross-model pulse. We will surface an executive summary, strengths/weaknesses, and actions in seconds.
         </p>
         
-        <div className="w-full max-w-xs">
-          <ProductSelect value={selectedProduct} onChange={onProductChange} />
+        <div className="flex flex-col sm:flex-row items-end gap-3 w-full max-w-xl pt-2">
+          <div className="flex-1 w-full">
+            <ProductSelect value={selectedProduct} onChange={onProductChange} />
+          </div>
+          <button
+            onClick={onGenerate}
+            className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg font-semibold hover:from-cyan-400 hover:to-blue-400 transition-all duration-300 neon-glow-cyan-strong w-full sm:w-auto"
+          >
+            {selectedProduct === "all" ? "Analyze All Products" : "Generate Summary"}
+          </button>
         </div>
-        
-        <button
-          onClick={onGenerate}
-          className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg font-semibold hover:from-cyan-400 hover:to-blue-400 transition-all duration-300 neon-glow-cyan-strong"
-        >
-          Generate Summary
-        </button>
+        <p className="text-xs text-cyan-100/60">Tip: “All Products” gives a high-level pulse; pick a model for deeper focus.</p>
       </div>
     );
   }
@@ -139,7 +141,7 @@ export function SummaryViewer({
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between gap-4 pb-4 border-b border-gray-200">
+      <div className="flex items-end justify-between gap-4 pb-4 border-b border-gray-200">
         <ProductSelect value={selectedProduct} onChange={onProductChange} id="product-select-loaded" />
         <button
           onClick={onGenerate}
