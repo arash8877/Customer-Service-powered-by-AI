@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { EmailSelector } from "../components/EmailSelector";
 import { ToneSelector } from "../components/ToneSelector";
@@ -61,6 +61,8 @@ export default function EmailsPage() {
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
   const [selectedTone, setSelectedTone] = useState<Tone | null>(null);
   const [generatedResponse, setGeneratedResponse] = useState<Response | null>(null);
+  const mainRef = useRef<HTMLElement | null>(null);
+  const responseSectionRef = useRef<HTMLDivElement | null>(null);
 
   const [activeTab, setActiveTab] = useState<"response" | "summary">("response");
   const [summaryData, setSummaryData] = useState<SummaryResponse | null>(null);
@@ -139,6 +141,23 @@ export default function EmailsPage() {
     });
   };
 
+  const scrollMainToTop = () => {
+    if (mainRef.current) {
+      mainRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const scrollToResponse = () => {
+    if (responseSectionRef.current) {
+      responseSectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else if (mainRef.current) {
+      mainRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+  };
+
   const handleAccept = () => {
     if (selectedEmailId) {
       setEmailsState((prev) =>
@@ -147,6 +166,7 @@ export default function EmailsPage() {
       setSelectedEmailId(null);
       setSelectedTone(null);
       setGeneratedResponse(null);
+      scrollMainToTop();
       toast.success("Email response generated successfully", {
         duration: 3000,
       });
@@ -196,6 +216,13 @@ export default function EmailsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedEmail?.id, recommendedTone?.tone]);
 
+  useEffect(() => {
+    if (generatedResponse && !responseMutation.isPending) {
+      scrollToResponse();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [generatedResponse, responseMutation.isPending]);
+
   const productFilterMap: Record<ProductModelFilter, string | undefined> = {
     all: undefined,
     "model-1": "TV-Model 1",
@@ -230,7 +257,7 @@ export default function EmailsPage() {
   }, [emailsState, filters.productModel, filters.status, searchTerm]);
 
   return (
-    <main className="min-h-screen bg-dark-gradient py-8 px-4 sm:px-5 lg:px-6">
+    <main ref={mainRef} className="min-h-screen bg-dark-gradient py-8 px-4 sm:px-5 lg:px-6">
       <div className="max-w-8xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold mb-2">
@@ -387,13 +414,15 @@ export default function EmailsPage() {
                       )}
 
                       {generatedResponse && !responseMutation.isPending && (
-                        <ResponseViewer
-                          response={generatedResponse}
-                          email={selectedEmail}
-                          onRegenerate={handleRegenerate}
-                          onAccept={handleAccept}
-                          isGenerating={responseMutation.isPending}
-                        />
+                        <div ref={responseSectionRef}>
+                          <ResponseViewer
+                            response={generatedResponse}
+                            email={selectedEmail}
+                            onRegenerate={handleRegenerate}
+                            onAccept={handleAccept}
+                            isGenerating={responseMutation.isPending}
+                          />
+                        </div>
                       )}
                     </>
                   )}

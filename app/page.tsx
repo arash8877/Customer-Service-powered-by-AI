@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { ReviewSelector } from "./components/ReviewSelector";
 import { ToneSelector } from "./components/ToneSelector";
@@ -62,6 +62,8 @@ export default function Home() {
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
   const [selectedTone, setSelectedTone] = useState<Tone | null>(null);
   const [generatedResponse, setGeneratedResponse] = useState<Response | null>(null);
+  const mainRef = useRef<HTMLElement | null>(null);
+  const responseSectionRef = useRef<HTMLDivElement | null>(null);
   
   const [activeTab, setActiveTab] = useState<"response" | "summary">("response");
   const [summaryData, setSummaryData] = useState<SummaryResponse | null>(null);
@@ -167,6 +169,23 @@ export default function Home() {
     });
   };
 
+  const scrollMainToTop = () => {
+    if (mainRef.current) {
+      mainRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const scrollToResponse = () => {
+    if (responseSectionRef.current) {
+      responseSectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else if (mainRef.current) {
+      mainRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+  };
+
   const handleAccept = () => {
     if (selectedReviewId) {
       setReviewsState((prev) =>
@@ -177,6 +196,7 @@ export default function Home() {
       setSelectedReviewId(null);
       setSelectedTone(null);
       setGeneratedResponse(null);
+      scrollMainToTop();
       toast.success("Response accepted and saved!", {
         description: "The review has been marked as responded",
         action: {
@@ -228,6 +248,13 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedReview?.id, recommendedTone?.tone]);
 
+  useEffect(() => {
+    if (generatedResponse && !responseMutation.isPending) {
+      scrollToResponse();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [generatedResponse, responseMutation.isPending]);
+
   const filteredReviews = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
@@ -255,7 +282,7 @@ export default function Home() {
   }, [filters.productModel, filters.status, reviewsState, searchTerm]);
 
   return (
-    <main className="min-h-screen bg-dark-gradient py-8 px-4 sm:px-5 lg:px-6">
+    <main ref={mainRef} className="min-h-screen bg-dark-gradient py-8 px-4 sm:px-5 lg:px-6">
       <div className="max-w-8xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold mb-2">
@@ -401,13 +428,15 @@ export default function Home() {
                       )}
 
                       {generatedResponse && !responseMutation.isPending && (
-                        <ResponseViewer
-                          response={generatedResponse}
-                          review={selectedReview}
-                          onRegenerate={handleRegenerate}
-                          onAccept={handleAccept}
-                          isGenerating={responseMutation.isPending}
-                        />
+                        <div ref={responseSectionRef}>
+                          <ResponseViewer
+                            response={generatedResponse}
+                            review={selectedReview}
+                            onRegenerate={handleRegenerate}
+                            onAccept={handleAccept}
+                            isGenerating={responseMutation.isPending}
+                          />
+                        </div>
                       )}
                     </>
                   )}
