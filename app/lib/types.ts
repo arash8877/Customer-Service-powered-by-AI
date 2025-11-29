@@ -50,10 +50,47 @@ export interface Response {
   keyConcerns?: string[];
 }
 
-
 export interface SummaryResponse {
   summary: string;
   strengths: string[];
   weaknesses: string[];
   recommendations: string[];
+}
+
+export type CallStatus = "live" | "open" | "resolved";
+export type CallUrgency = "low" | "medium" | "high";
+export type CallStatusFilter = "all" | CallStatus | "high-urgency";
+
+export interface CallFilters {
+  status: CallStatusFilter;
+  productModel: ProductModelFilter;
+}
+
+export interface PhoneCall {
+  id: string;
+  callerName: string;
+  productModel: ProductModel;
+  sentiment: Sentiment;
+  status: CallStatus;
+  urgency: CallUrgency;
+  intent: string;
+  durationMinutes: number;
+  transcript: string;
+  summary: string;
+  riskFlags: string[];
+  nextActions: string[];
+  followUpChannel: "sms" | "email";
+  recommendedTone: Tone;
+  highlightMoments: string[];
+  createdAt: string;
+}
+
+export interface CallRecap {
+  summary: string;
+  actions: string[];
+  risks: string[];
+  opportunities: string[];
+  sentiment: Sentiment;
+  channel: string;
+  followUpChannel: "sms" | "email";
 }
