@@ -15,7 +15,7 @@ export function CallStatsOverview({ calls }: CallStatsOverviewProps) {
   const followUpPct = total === 0 ? 0 : Math.round(((open + live) / total) * 100);
 
   return (
-    <div className="grid gap-6 mb-6 lg:grid-cols-[320px,1fr] items-stretch">
+    <div className="grid gap-6 mb-6 xl:grid-cols-[380px,1fr] lg:grid-cols-[340px,1fr] items-stretch">
       <div className="glass-card rounded-2xl p-4 border border-purple-400/30 h-full">
         <p className="text-xs uppercase text-purple-100/70 font-semibold">Total calls</p>
         <p className="text-3xl font-bold text-purple-100 mt-2">{total}</p>

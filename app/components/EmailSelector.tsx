@@ -193,7 +193,7 @@ export function EmailSelector({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-xl font-semibold text-cyan-200">Customer Emails</h2>
+        <h2 className="text-xl font-semibold text-cyan-200">Emails</h2>
       </div>
 
       <div className="glass rounded-xl p-3 border border-cyan-400/20 space-y-3">

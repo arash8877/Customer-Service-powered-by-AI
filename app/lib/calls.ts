@@ -275,9 +275,10 @@ function recommendedToneFor(sentiment: PhoneCall["sentiment"]): Tone {
   return "Neutral/Professional";
 }
 
-function buildRecentCalls(count = 70): PhoneCall[] {
-  // Bucket time to the nearest hour to keep server/client hydration aligned while staying within 48 hours.
-  const nowBucketMs = Math.floor(Date.now() / 3_600_000) * 3_600_000;
+export function buildRecentCalls(count = 70): PhoneCall[] {
+  // Use a fixed base time to ensure stable timestamps across renders
+  const baseTime = new Date('2024-12-01T12:00:00Z').getTime();
+  const nowBucketMs = Math.floor(baseTime / 3_600_000) * 3_600_000;
 
   return Array.from({ length: count }, (_, idx) => {
     const template = baseCallTemplates[idx % baseCallTemplates.length];

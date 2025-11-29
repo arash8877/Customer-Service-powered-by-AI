@@ -153,6 +153,7 @@ export function ReviewSelector({
   reviews,
   selectedReviewId,
   onSelectReview,
+  onReorderReviews,
   filters,
   onFiltersChange,
   searchTerm,
@@ -160,14 +161,8 @@ export function ReviewSelector({
 }: ReviewSelectorProps) {
   const [view, setView] = useState<"open" | "responded" | "all">("open");
 
-  const respondedReviews = useMemo(
-    () => reviews.filter((review) => review.answered),
-    [reviews]
-  );
-  const openReviews = useMemo(
-    () => reviews.filter((review) => !review.answered),
-    [reviews]
-  );
+  const respondedReviews = useMemo(() => reviews.filter((review) => review.answered), [reviews]);
+  const openReviews = useMemo(() => reviews.filter((review) => !review.answered), [reviews]);
 
   const viewOptions: { key: "open" | "responded" | "all"; label: string }[] = [
     { key: "open", label: "Open" },
@@ -185,9 +180,7 @@ export function ReviewSelector({
       </div>
 
       <div className="glass rounded-xl p-3 border border-cyan-400/20 space-y-3">
-        <p className="text-[10px] font-semibold text-cyan-300 uppercase tracking-wide px-1">
-          View
-        </p>
+        <p className="text-[10px] font-semibold text-cyan-300 uppercase tracking-wide px-1">View</p>
         <div className="grid grid-cols-3 gap-2">
           {viewOptions.map(({ key, label }) => (
             <button
