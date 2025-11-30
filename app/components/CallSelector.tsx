@@ -26,20 +26,6 @@ interface CallItemProps {
   onSelect: (id: string) => void;
 }
 
-const statusColors: Record<CallStatusFilter | "live", string> = {
-  live: "bg-emerald-500/20 text-emerald-200 border-emerald-400/40",
-  open: "bg-amber-500/20 text-amber-100 border-amber-400/40",
-  resolved: "bg-cyan-500/20 text-cyan-100 border-cyan-400/40",
-  "high-urgency": "bg-red-500/20 text-red-100 border-red-400/40",
-  all: "",
-};
-
-const urgencyColors: Record<PhoneCall["urgency"], string> = {
-  low: "text-emerald-200 bg-emerald-500/10",
-  medium: "text-amber-200 bg-amber-500/10",
-  high: "text-red-200 bg-red-500/10",
-};
-
 function FiltersPanel({ filters, onFiltersChange, searchTerm, onSearchChange }: FiltersProps) {
   const resetFilters = () => {
     onFiltersChange({
@@ -67,23 +53,22 @@ function FiltersPanel({ filters, onFiltersChange, searchTerm, onSearchChange }: 
 
       <div className="space-y-4">
         <div className="space-y-2">
-          <label htmlFor="status-filter" className="text-sm font-medium text-cyan-200 flex items-center gap-2">
+          <label htmlFor="priority-filter" className="text-sm font-medium text-cyan-200 flex items-center gap-2">
             <span className="text-cyan-400">📊</span>
-            Call Status
+            Periority
           </label>
           <select
-            id="status-filter"
+            id="priority-filter"
             value={filters.status}
             onChange={(e) =>
               onFiltersChange({ ...filters, status: e.target.value as CallStatusFilter })
             }
             className="w-full px-4 py-3 text-sm border border-cyan-400/30 rounded-lg bg-white/5 text-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm transition-all"
           >
-            <option value="all">All calls</option>
-            <option value="live">🔴 Live calls</option>
-            <option value="open">🟡 Open follow-ups</option>
-            <option value="resolved">✅ Completed</option>
-            <option value="high-urgency">🚨 High urgency</option>
+            <option value="all">All Calls</option>
+            <option value="high">High periority</option>
+            <option value="medium">medium periority</option>
+            <option value="low">low periority</option>
           </select>
         </div>
 

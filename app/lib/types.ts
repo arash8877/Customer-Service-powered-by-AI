@@ -61,7 +61,7 @@ export interface SummaryResponse {
 
 export type CallStatus = "live" | "open" | "resolved";
 export type CallUrgency = "low" | "medium" | "high";
-export type CallStatusFilter = "all" | CallStatus | "high-urgency";
+export type CallStatusFilter = "all" | CallUrgency;
 
 export interface CallFilters {
   status: CallStatusFilter;

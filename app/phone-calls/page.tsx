@@ -82,12 +82,7 @@ export default function PhoneCallsPage() {
     const normalized = searchTerm.trim().toLowerCase();
 
     return calls.filter((call) => {
-      const statusMatch =
-        filters.status === "all"
-          ? true
-          : filters.status === "high-urgency"
-            ? call.urgency === "high"
-            : call.status === filters.status;
+      const priorityMatch = filters.status === "all" ? true : call.urgency === filters.status;
 
       const productMatch =
         filters.productModel === "all" ||
@@ -102,7 +97,7 @@ export default function PhoneCallsPage() {
         call.intent.toLowerCase().includes(normalized) ||
         call.summary.toLowerCase().includes(normalized);
 
-      return statusMatch && productMatch && searchMatch;
+      return priorityMatch && productMatch && searchMatch;
     });
   }, [calls, filters.productModel, filters.status, searchTerm]);
 
