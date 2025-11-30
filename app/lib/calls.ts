@@ -16,6 +16,11 @@ Customer: Yes, and I swapped HDMI cables too. It still flashes every few seconds
 Agent: Understood. I'll create a case and push the rollback package while we're on the call.`,
     summary:
       "Customer sees persistent flickering on TV-Model 2 after a firmware update. Already tried power cycle and HDMI swap. Expecting a fix or replacement.",
+    history: [
+      "Firmware update triggered severe flicker",
+      "Tried power cycle and HDMI swap already",
+      "Case opened; sending rollback steps now",
+    ],
     riskFlags: ["Churn risk if unresolved", "Warranty expectation", "Recent firmware regression"],
     nextActions: [
       "Send firmware rollback steps via SMS within 10 minutes",
@@ -42,6 +47,11 @@ Customer: I see eARC on, but I'm not sure about lip-sync adjustment.
 Agent: I'll walk you through it and send a checklist after the call.`,
     summary:
       "Lip-sync delay on TV-Model 3 when using a soundbar over HDMI ARC. Customer unsure about lip-sync calibration.",
+    history: [
+      "Reported lip-sync delay over ARC",
+      "eARC on; walked through lip-sync menu",
+      "Drafting calibration checklist to send",
+    ],
     riskFlags: ["Experience friction", "May call back if not resolved"],
     nextActions: [
       "Send lip-sync calibration steps",
@@ -68,6 +78,11 @@ Customer: Streaming, mostly films at night.
 Agent: I'll send the cinema preset and HDR toggle steps in an email after this call.`,
     summary:
       "Caller requested a cinema picture preset for TV-Model 1; wants streaming-optimized settings. Call concluded positively.",
+    history: [
+      "Requested cinema preset for TV-Model 1",
+      "Mostly streams at night",
+      "Sending preset + HDR steps via email",
+    ],
     riskFlags: [],
     nextActions: [
       "Email the cinema preset and HDR toggle steps",
@@ -94,6 +109,11 @@ Customer: Yes, it's visible on black backgrounds.
 Agent: I'll open a warranty case and share replacement steps.`,
     summary:
       "Dead pixels on newly purchased TV-Model 2. Customer expects replacement under warranty.",
+    history: [
+      "New TV unboxed with dead pixels",
+      "Most visible on dark scenes",
+      "Opening warranty case; collecting details",
+    ],
     riskFlags: ["High replacement expectation", "Churn risk if delayed"],
     nextActions: [
       "Verify purchase date and serial",
@@ -119,6 +139,11 @@ Agent: Understood. Are you seeing any blinking LEDs?
 Customer: Just a slow blink.
 Agent: I'll guide you through pairing and share the step-by-step via SMS.`,
     summary: "Remote for TV-Model 4 not pairing after battery change; needs pairing guide.",
+    history: [
+      "Remote won't pair after battery swap",
+      "LED shows slow blink",
+      "Running guided pairing steps now",
+    ],
     riskFlags: ["May escalate if pairing fails"],
     nextActions: [
       "Send pairing steps via SMS",
@@ -145,6 +170,11 @@ Customer: It's in the living room, nothing unusual.
 Agent: I'll send a 5GHz/2.4GHz checklist and schedule a follow-up.`,
     summary:
       "Wi-Fi disconnects nightly on TV-Model 1; other devices unaffected. Needs network checklist and potential firmware check.",
+    history: [
+      "Nightly Wi-Fi drops around 9 PM",
+      "Other devices fine; placement normal",
+      "Collecting router details; prepping checklist",
+    ],
     riskFlags: ["Frustration building", "May blame firmware"],
     nextActions: [
       "Send channel interference checklist",
@@ -171,6 +201,11 @@ Customer: Yes, please.
 Agent: I'll send steps and a quick video after this call.`,
     summary:
       "Customer wants captions default-enabled across inputs on TV-Model 4 for accessibility.",
+    history: [
+      "Needs captions always on for accessibility",
+      "Wants default-on across HDMI/inputs",
+      "Sending steps and short video guide",
+    ],
     riskFlags: [],
     nextActions: [
       "Send captions setup guide",
@@ -196,6 +231,11 @@ Agent: Let me check the carrier. Do you have the order number?
 Customer: Yes, it's 4829.
 Agent: I'll chase the carrier and update you via SMS today.`,
     summary: "Shipping delay for TV-Model 2; customer wants same-day status update.",
+    history: [
+      "Reported shipping delay past promised date",
+      "Provided order number 4829",
+      "Chasing carrier; will send ETA today",
+    ],
     riskFlags: ["Delivery frustration", "Refund risk"],
     nextActions: [
       "Contact carrier for status",
@@ -222,6 +262,11 @@ Customer: Not sure, I'm on the default mode.
 Agent: I'll send a calibration preset and stay on the line while you try it.`,
     summary:
       "HDR picture looks washed out on TV-Model 4. Needs quick calibration preset and tone mapping guidance.",
+    history: [
+      "HDR looks washed out on TV-Model 4",
+      "On default mode; unsure about tone mapping",
+      "Sending quick calibration preset",
+    ],
     riskFlags: ["Perceived product quality risk"],
     nextActions: [
       "Share HDR calibration preset",
@@ -248,6 +293,11 @@ Customer: It auto-updated last night.
 Agent: I'll guide you through mic permission reset and push a hotfix if needed.`,
     summary:
       "Voice control stopped working on TV-Model 4 after an overnight update. Needs mic permission reset and potential hotfix.",
+    history: [
+      "Voice control stopped after overnight update",
+      "Confirmed recent auto-update",
+      "Guiding mic reset; hotfix ready if needed",
+    ],
     riskFlags: ["Feature regression concern"],
     nextActions: [
       "Guide mic permission reset",

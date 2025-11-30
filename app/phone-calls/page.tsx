@@ -143,7 +143,14 @@ export default function PhoneCallsPage() {
 
     setCallsState((prev) =>
       (prev ?? []).map((call) =>
-        call.id === selectedCallId ? { ...call, status: "resolved" } : call
+        call.id === selectedCallId
+          ? {
+              ...call,
+              status: "resolved",
+              history: [...(call.history ?? []), `Follow-up sent via ${call.followUpChannel.toUpperCase()}`],
+              nextActions: [],
+            }
+          : call
       )
     );
     setGeneratedResponse(null);
@@ -532,23 +539,56 @@ export default function PhoneCallsPage() {
                           <div className="glass rounded-xl border border-emerald-400/20 p-5 space-y-4 shadow-lg bg-white/5">
                             <div className="flex items-center justify-between">
                               <h4 className="text-lg font-semibold text-emerald-200 flex items-center gap-2">
-                                <span className="text-emerald-400">🎯</span>
-                                Next Actions
+                                <span className="text-emerald-400">🕒</span>
+                                History
                               </h4>
                               <span className="text-xs text-emerald-100/70 px-2 py-1 rounded bg-emerald-500/10 border border-emerald-400/20">
-                                Commitments
+                                Timeline
                               </span>
                             </div>
                             <div className="space-y-3">
-                              {selectedCall.nextActions.map((action, index) => (
+                              {selectedCall.history.map((item, index) => (
                                 <div
                                   key={index}
                                   className="flex items-start gap-3 text-sm text-cyan-50 p-3 bg-emerald-500/5 rounded-lg border border-emerald-400/10"
                                 >
-                                  <span className="mt-0.5 text-emerald-300 flex-shrink-0">✓</span>
-                                  <span className="leading-relaxed">{action}</span>
+                                  <span className="mt-0.5 text-emerald-300 flex-shrink-0">
+                                    {index + 1}.
+                                  </span>
+                                  <span className="leading-relaxed">{item}</span>
                                 </div>
                               ))}
+                            </div>
+                            <div className="border-t border-emerald-400/20 pt-4 space-y-3">
+                              <div className="flex items-center justify-between">
+                                <p className="text-sm font-semibold text-emerald-200 flex items-center gap-2">
+                                  <span className="text-emerald-400">🎯</span>
+                                  Next Actions
+                                </p>
+                                <span className="text-[11px] text-emerald-100/70 px-2 py-1 rounded bg-emerald-500/10 border border-emerald-400/20">
+                                  In progress
+                                </span>
+                              </div>
+                              <div className="space-y-3">
+                                {selectedCall.nextActions.length === 0 ? (
+                                  <div className="flex items-start gap-3 text-sm text-cyan-50 p-3 bg-emerald-500/5 rounded-lg border border-emerald-400/10">
+                                    <span className="mt-0.5 text-emerald-300 flex-shrink-0">ℹ️</span>
+                                    <span className="leading-relaxed">
+                                      No next actions pending. Follow-up is complete.
+                                    </span>
+                                  </div>
+                                ) : (
+                                  selectedCall.nextActions.map((action, index) => (
+                                    <div
+                                      key={index}
+                                      className="flex items-start gap-3 text-sm text-cyan-50 p-3 bg-emerald-500/5 rounded-lg border border-emerald-400/10"
+                                    >
+                                      <span className="mt-0.5 text-emerald-300 flex-shrink-0">✓</span>
+                                      <span className="leading-relaxed">{action}</span>
+                                    </div>
+                                  ))
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>

@@ -78,6 +78,7 @@ export interface PhoneCall {
   transcript: string;
   summary: string;
   riskFlags: string[];
+  history: string[];
   nextActions: string[];
   followUpChannel: "sms" | "email";
   recommendedTone: Tone;
