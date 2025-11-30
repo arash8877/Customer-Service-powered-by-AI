@@ -1,6 +1,9 @@
 import { CustomerEmail } from "./types";
 
-export const customerEmails: CustomerEmail[] = [
+type EmailSeed = Omit<CustomerEmail, "history" | "nextActions"> &
+  Partial<Pick<CustomerEmail, "history" | "nextActions">>;
+
+const emailSeeds: EmailSeed[] = [
   {
     id: "e1",
     subject: "Ambient mode options on TV-Model 1",
@@ -10,6 +13,8 @@ export const customerEmails: CustomerEmail[] = [
     productModel: "TV-Model 1",
     priority: "medium",
     answered: true,
+    history: ["Email received about ambient gallery mode", "Answered with menu steps"],
+    nextActions: [],
   },
   {
     id: "e2",
@@ -19,6 +24,8 @@ export const customerEmails: CustomerEmail[] = [
     customerName: "Marcus Lee",
     productModel: "TV-Model 2",
     priority: "high",
+    history: ["Dead pixels reported on new unit", "Asked about warranty coverage options"],
+    nextActions: ["Verify purchase details", "Confirm warranty replacement path"],
   },
   {
     id: "e3",
@@ -28,6 +35,8 @@ export const customerEmails: CustomerEmail[] = [
     customerName: "Priya Nair",
     productModel: "TV-Model 3",
     priority: "medium",
+    history: ["Subtitles disappear intermittently", "Requested firmware guidance"],
+    nextActions: ["Check firmware version", "Send subtitle stability steps"],
   },
   {
     id: "e4",
@@ -37,6 +46,8 @@ export const customerEmails: CustomerEmail[] = [
     customerName: "Ethan Riley",
     productModel: "TV-Model 4",
     priority: "medium",
+    history: ["Missing shorter screws in mount kit", "Asked for replacements/size info"],
+    nextActions: ["Confirm screw specs", "Ship replacement screws"],
   },
   {
     id: "e5",
@@ -46,6 +57,8 @@ export const customerEmails: CustomerEmail[] = [
     customerName: "Sofia Nguyen",
     productModel: "TV-Model 1",
     priority: "low",
+    history: ["Positive feedback on gaming mode", "Asked for PS5 settings tips"],
+    nextActions: ["Share optimized PS5 settings"],
   },
   {
     id: "e6",
@@ -55,6 +68,8 @@ export const customerEmails: CustomerEmail[] = [
     customerName: "Daniel Ortiz",
     productModel: "TV-Model 2",
     priority: "high",
+    history: ["Audio delay over HDMI ARC", "Asked for lip sync adjustment"],
+    nextActions: ["Send lip sync steps", "Offer follow-up if unresolved"],
   },
   {
     id: "e7",
@@ -65,6 +80,8 @@ export const customerEmails: CustomerEmail[] = [
     productModel: "TV-Model 3",
     priority: "medium",
     answered: true,
+    history: ["Picture dim in bright room", "Provided daytime brightness preset"],
+    nextActions: [],
   },
   {
     id: "e8",
@@ -75,6 +92,8 @@ export const customerEmails: CustomerEmail[] = [
     productModel: "TV-Model 4",
     priority: "low",
     answered: true,
+    history: ["Thanked for quick replacement", "Acknowledged resolution"],
+    nextActions: [],
   },
   {
     id: "e9",
@@ -84,6 +103,8 @@ export const customerEmails: CustomerEmail[] = [
     customerName: "Grace Turner",
     productModel: "TV-Model 1",
     priority: "high",
+    history: ["Remote drains batteries weekly", "Asked about replacement eligibility"],
+    nextActions: ["Check serial/batch", "Offer replacement if faulty"],
   },
   {
     id: "e10",
@@ -94,6 +115,8 @@ export const customerEmails: CustomerEmail[] = [
     productModel: "TV-Model 2",
     priority: "medium",
     answered: true,
+    history: ["Corporate signage inquiry", "Confirmed input lock options"],
+    nextActions: [],
   },
   {
     id: "e11",
@@ -103,6 +126,8 @@ export const customerEmails: CustomerEmail[] = [
     customerName: "Lena Schmidt",
     productModel: "TV-Model 3",
     priority: "low",
+    history: ["Eco mode toggles off after reboot", "Asked for persistent setting fix"],
+    nextActions: ["Share persistent eco setting steps"],
   },
   {
     id: "e12",
@@ -112,6 +137,8 @@ export const customerEmails: CustomerEmail[] = [
     customerName: "Jamal Roberts",
     productModel: "TV-Model 4",
     priority: "medium",
+    history: ["HDR looks washed out", "Asked for calibration guidance"],
+    nextActions: ["Send HDR preset", "Offer troubleshooting follow-up"],
   },
   {
     id: "e13",
@@ -121,6 +148,8 @@ export const customerEmails: CustomerEmail[] = [
     customerName: "Heather Collins",
     productModel: "TV-Model 1",
     priority: "low",
+    history: ["Praised accessibility features", "Acknowledged feedback"],
+    nextActions: [],
   },
   {
     id: "e14",
@@ -130,6 +159,8 @@ export const customerEmails: CustomerEmail[] = [
     customerName: "Samuel Brooks",
     productModel: "TV-Model 2",
     priority: "medium",
+    history: ["Asked about second-hand warranty transfer", "Needs registration steps"],
+    nextActions: ["Share transfer process", "Request proof of purchase"],
   },
   {
     id: "e15",
@@ -139,6 +170,8 @@ export const customerEmails: CustomerEmail[] = [
     customerName: "Nora Eriksen",
     productModel: "TV-Model 3",
     priority: "medium",
+    history: ["Missing HBO Max in app store", "Asked for availability timeline"],
+    nextActions: ["Check app rollout status", "Provide ETA or workaround"],
   },
   {
     id: "e16",
@@ -148,6 +181,8 @@ export const customerEmails: CustomerEmail[] = [
     customerName: "Carlos Silva",
     productModel: "TV-Model 4",
     priority: "low",
+    history: ["Positive unboxing feedback", "Appreciated smooth setup"],
+    nextActions: [],
   },
   {
     id: "e17",
@@ -157,6 +192,8 @@ export const customerEmails: CustomerEmail[] = [
     customerName: "Julia Petterson",
     productModel: "TV-Model 1",
     priority: "high",
+    history: ["Nightly Wi-Fi drops on TV-Model 1", "Other devices unaffected"],
+    nextActions: ["Send Wi-Fi stability checklist", "Request router details"],
   },
   {
     id: "e18",
@@ -167,6 +204,8 @@ export const customerEmails: CustomerEmail[] = [
     productModel: "TV-Model 2",
     priority: "low",
     answered: true,
+    history: ["Thanks for calibration tutorial", "Issue resolved"],
+    nextActions: [],
   },
   {
     id: "e19",
@@ -176,6 +215,8 @@ export const customerEmails: CustomerEmail[] = [
     customerName: "Tommy Alvarez",
     productModel: "TV-Model 3",
     priority: "medium",
+    history: ["Bluetooth headphones not detected", "Asked for supported devices list"],
+    nextActions: ["Share pairing steps", "Provide compatible devices guidance"],
   },
   {
     id: "e20",
@@ -185,6 +226,8 @@ export const customerEmails: CustomerEmail[] = [
     customerName: "Bethany Cruz",
     productModel: "TV-Model 4",
     priority: "high",
+    history: ["Startup flicker for 30 seconds", "Asked if firmware fix exists"],
+    nextActions: ["Check firmware version", "Share fix or escalation path"],
   },
   {
     id: "e21",
@@ -194,6 +237,8 @@ export const customerEmails: CustomerEmail[] = [
     customerName: "Kevin Walsh",
     productModel: "TV-Model 1",
     priority: "medium",
+    history: ["Asked about 1440p 120Hz over HDMI 2.1", "Considering TV as PC monitor"],
+    nextActions: ["Confirm spec support", "Share setup steps if supported"],
   },
   {
     id: "e22",
@@ -203,6 +248,8 @@ export const customerEmails: CustomerEmail[] = [
     customerName: "Diana Novak",
     productModel: "TV-Model 2",
     priority: "low",
+    history: ["Gift purchase guidance for parents", "Asked about voice remote add-on"],
+    nextActions: ["Recommend remote option", "Share easy-start tips"],
   },
   {
     id: "e23",
@@ -212,6 +259,8 @@ export const customerEmails: CustomerEmail[] = [
     customerName: "Adrian Fox",
     productModel: "TV-Model 3",
     priority: "high",
+    history: ["Persistent yellow tint after calibration", "Concerned about panel defect"],
+    nextActions: ["Request photos/settings", "Provide correction steps"],
   },
   {
     id: "e24",
@@ -222,6 +271,8 @@ export const customerEmails: CustomerEmail[] = [
     productModel: "TV-Model 4",
     priority: "medium",
     answered: true,
+    history: ["Remote won't pair after battery swap", "Shared pairing steps"],
+    nextActions: [],
   },
   {
     id: "e25",
@@ -231,6 +282,8 @@ export const customerEmails: CustomerEmail[] = [
     customerName: "Jonas Mikkelsen",
     productModel: "TV-Model 1",
     priority: "low",
+    history: ["Praised sports picture", "Asked for Champions League settings"],
+    nextActions: ["Share sports preset tips"],
   },
   {
     id: "e26",
@@ -240,134 +293,20 @@ export const customerEmails: CustomerEmail[] = [
     customerName: "Patricia Cole",
     productModel: "TV-Model 2",
     priority: "high",
-  },
-  {
-    id: "e27",
-    subject: "Energy consumption details",
-    body: "Before installing TV-Model 3 in our vacation home, could you share typical kWh usage per month when used 3 hours daily?",
-    sentiment: "neutral",
-    customerName: "Stefan Müller",
-    productModel: "TV-Model 3",
-    priority: "low",
-  },
-  {
-    id: "e28",
-    subject: "Thank you for accessibility support",
-    body: "Appreciate how responsive the customer support was in explaining closed captions on TV-Model 4. It made my dad's day.",
-    sentiment: "positive",
-    customerName: "Isabella Rossi",
-    productModel: "TV-Model 4",
-    priority: "low",
-    answered: true,
-  },
-  {
-    id: "e29",
-    subject: "Stuck pixels after two months",
-    body: "TV-Model 1 developed stuck pixels near the center. It's past the return window—can this be repaired under warranty?",
-    sentiment: "negative",
-    customerName: "Mateo Ruiz",
-    productModel: "TV-Model 1",
-    priority: "high",
-  },
-  {
-    id: "e30",
-    subject: "Streaming quality drops",
-    body: "On TV-Model 2, Netflix quality keeps downgrading even though our connection is stable. Do I need to adjust any bandwidth settings?",
-    sentiment: "negative",
-    customerName: "Sinead O'Connor",
-    productModel: "TV-Model 2",
-    priority: "medium",
-  },
-  {
-    id: "e31",
-    subject: "Corporate accessibility request",
-    body: "We're considering TV-Model 3 displays for an office. Do they support live captions for HDMI inputs for town halls?",
-    sentiment: "neutral",
-    customerName: "George Patel",
-    productModel: "TV-Model 3",
-    priority: "medium",
-  },
-  {
-    id: "e32",
-    subject: "Good value for rental unit",
-    body: "Installed TV-Model 4 in our rental apartment and tenants love the interface. Any tips to lock down settings between guests?",
-    sentiment: "positive",
-    customerName: "Anna Kowalski",
-    productModel: "TV-Model 4",
-    priority: "medium",
-  },
-  {
-    id: "e33",
-    subject: "Random reboots overnight",
-    body: "TV-Model 1 reboots itself at 3 AM which wakes the room with the start-up chime. How do I disable scheduled updates?",
-    sentiment: "negative",
-    customerName: "Felix Wagner",
-    productModel: "TV-Model 1",
-    priority: "medium",
-    answered: true,
-  },
-  {
-    id: "e34",
-    subject: "Picture presets for cinema",
-    body: "Can you share recommended picture presets on TV-Model 2 for a dark home theater? I'm chasing accurate color for films.",
-    sentiment: "positive",
-    customerName: "Elena Papadopoulos",
-    productModel: "TV-Model 2",
-    priority: "low",
-  },
-  {
-    id: "e35",
-    subject: "Vertical banding issue",
-    body: "TV-Model 3 shows faint vertical bands on gray backgrounds. It's subtle but noticeable during sports. Is this typical?",
-    sentiment: "negative",
-    customerName: "Oskar Lind",
-    productModel: "TV-Model 3",
-    priority: "medium",
-  },
-  {
-    id: "e36",
-    subject: "CEC turning on console",
-    body: "Whenever I power on TV-Model 4 it also starts my PS5 even if I don't want to game. How can I disable CEC?",
-    sentiment: "neutral",
-    customerName: "Riley Carter",
-    productModel: "TV-Model 4",
-    priority: "low",
-  },
-  {
-    id: "e37",
-    subject: "Brightness spikes after update",
-    body: "After the latest firmware, TV-Model 1 sometimes jumps to maximum brightness mid-show. This is uncomfortable—can I roll back?",
-    sentiment: "negative",
-    customerName: "Camille Laurent",
-    productModel: "TV-Model 1",
-    priority: "high",
-  },
-  {
-    id: "e38",
-    subject: "Quick thanks for concierge support",
-    body: "Your team guided me through calibrating TV-Model 2 over chat in under 10 minutes. Stellar experience!",
-    sentiment: "positive",
-    customerName: "Mikkel Sørensen",
-    productModel: "TV-Model 2",
-    priority: "low",
-    answered: true,
-  },
-  {
-    id: "e39",
-    subject: "Low audio over optical",
-    body: "Using optical out on TV-Model 3 to a receiver results in very low volume even at max. Any setting to boost the signal?",
-    sentiment: "negative",
-    customerName: "Harper Diaz",
-    productModel: "TV-Model 3",
-    priority: "medium",
-  },
-  {
-    id: "e40",
-    subject: "Wall mount height guidance",
-    body: "Just installed TV-Model 4 in our studio. Any guidelines on eye-level height and tilt for optimal viewing distance of 3 meters?",
-    sentiment: "neutral",
-    customerName: "Victor Hansen",
-    productModel: "TV-Model 4",
-    priority: "low",
+    history: ["Delivery delay beyond promised date", "Requested shipment status update"],
+    nextActions: ["Check carrier status", "Send ETA and compensation options"],
   },
 ];
+
+export const customerEmails: CustomerEmail[] = emailSeeds.map((email) => ({
+  ...email,
+  history:
+    email.history ??
+    [
+      `Email received: ${email.subject}`,
+      `Priority: ${email.priority} • Sentiment: ${email.sentiment}`,
+    ],
+  nextActions:
+    email.nextActions ??
+    (email.answered ? [] : ["Draft reply for customer", "Confirm resolution details"]),
+}));

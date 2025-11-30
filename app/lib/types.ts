@@ -28,6 +28,8 @@ export interface CustomerEmail {
   productModel: ProductModel;
   priority: EmailPriority;
   answered?: boolean;
+  history: string[];
+  nextActions: string[];
 }
 
 export interface Review {

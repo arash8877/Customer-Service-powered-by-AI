@@ -161,7 +161,16 @@ export default function EmailsPage() {
   const handleAccept = () => {
     if (selectedEmailId) {
       setEmailsState((prev) =>
-        prev.map((email) => (email.id === selectedEmailId ? { ...email, answered: true } : email))
+        prev.map((email) =>
+          email.id === selectedEmailId
+            ? {
+                ...email,
+                answered: true,
+                history: [...(email.history ?? []), "Response sent to customer"],
+                nextActions: [],
+              }
+            : email
+        )
       );
       setSelectedEmailId(null);
       setSelectedTone(null);
@@ -386,25 +395,80 @@ export default function EmailsPage() {
                         </div>
                       </div>
 
-                      <div className="grid gap-4 md:grid-cols-[1fr,auto] items-end">
-                        <ToneSelector
-                          selectedTone={selectedTone}
-                          onSelectTone={setSelectedTone}
-                          disabled={!selectedEmail}
-                          recommendedTone={recommendedTone?.tone || null}
-                          recommendationReason={recommendedTone?.reason}
-                        />
-                        <button
-                          onClick={handleGenerate}
-                          disabled={!selectedTone || responseMutation.isPending}
-                          className={`w-full md:w-auto btn-primary focus-neon-glow ${
-                            !selectedTone || responseMutation.isPending
-                              ? "opacity-70 cursor-not-allowed"
-                              : ""
-                          }`}
-                        >
-                          {responseMutation.isPending ? "Generating..." : "Generate Response"}
-                        </button>
+                      <div className="grid gap-4 lg:grid-cols-2 items-start">
+                        <div className="grid gap-4 md:grid-cols-[1fr,auto] items-end">
+                          <ToneSelector
+                            selectedTone={selectedTone}
+                            onSelectTone={setSelectedTone}
+                            disabled={!selectedEmail}
+                            recommendedTone={recommendedTone?.tone || null}
+                            recommendationReason={recommendedTone?.reason}
+                          />
+                          <button
+                            onClick={handleGenerate}
+                            disabled={!selectedTone || responseMutation.isPending}
+                            className={`w-full md:w-auto btn-primary focus-neon-glow ${
+                              !selectedTone || responseMutation.isPending
+                                ? "opacity-70 cursor-not-allowed"
+                                : ""
+                            }`}
+                          >
+                            {responseMutation.isPending ? "Generating..." : "Generate Response"}
+                          </button>
+                        </div>
+                        <div className="glass rounded-xl border border-emerald-400/20 p-5 space-y-4 shadow-lg bg-white/5">
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-lg font-semibold text-emerald-200 flex items-center gap-2">
+                              <span className="text-emerald-400">🕒</span>
+                              History
+                            </h4>
+                            <span className="text-xs text-emerald-100/70 px-2 py-1 rounded bg-emerald-500/10 border border-emerald-400/20">
+                              Timeline
+                            </span>
+                          </div>
+                          <div className="space-y-3">
+                            {selectedEmail.history.map((item, index) => (
+                              <div
+                                key={index}
+                                className="flex items-start gap-3 text-sm text-cyan-50 p-3 bg-emerald-500/5 rounded-lg border border-emerald-400/10"
+                              >
+                                <span className="mt-0.5 text-emerald-300 flex-shrink-0">
+                                  {index + 1}.
+                                </span>
+                                <span className="leading-relaxed">{item}</span>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="border-t border-emerald-400/20 pt-4 space-y-3">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-semibold text-emerald-200 flex items-center gap-2">
+                                <span className="text-emerald-400">🎯</span>
+                                Next Actions
+                              </p>
+                              <span className="text-[11px] text-emerald-100/70 px-2 py-1 rounded bg-emerald-500/10 border border-emerald-400/20">
+                                In progress
+                              </span>
+                            </div>
+                            <div className="space-y-3">
+                              {selectedEmail.nextActions.length === 0 ? (
+                                <div className="flex items-start gap-3 text-sm text-cyan-50 p-3 bg-emerald-500/5 rounded-lg border border-emerald-400/10">
+                                  <span className="mt-0.5 text-emerald-300 flex-shrink-0">ℹ️</span>
+                                  <span className="leading-relaxed">No next actions pending.</span>
+                                </div>
+                              ) : (
+                                selectedEmail.nextActions.map((action, index) => (
+                                  <div
+                                    key={index}
+                                    className="flex items-start gap-3 text-sm text-cyan-50 p-3 bg-emerald-500/5 rounded-lg border border-emerald-400/10"
+                                  >
+                                    <span className="mt-0.5 text-emerald-300 flex-shrink-0">✓</span>
+                                    <span className="leading-relaxed">{action}</span>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       </div>
 
                       {responseMutation.isPending && (
