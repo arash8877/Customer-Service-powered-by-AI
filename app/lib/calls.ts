@@ -315,7 +315,12 @@ Agent: I'll guide you through mic permission reset and push a hotfix if needed.`
 
 function formatCreatedAt(date: Date, hoursAgo: number) {
   const dayLabel = hoursAgo < 24 ? "Today" : "Yesterday";
-  const time = date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false });
+  const time = new Intl.DateTimeFormat("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Europe/Copenhagen",
+  }).format(date);
   return `${dayLabel}, ${time}`;
 }
 
@@ -326,17 +331,19 @@ function recommendedToneFor(sentiment: PhoneCall["sentiment"]): Tone {
 }
 
 export function buildRecentCalls(count = 70): PhoneCall[] {
-  // Use a fixed base time to ensure stable timestamps across renders
-  const baseTime = new Date('2024-12-01T12:00:00Z').getTime();
-  const nowBucketMs = Math.floor(baseTime / 3_600_000) * 3_600_000;
+  // Anchor to Denmark local time so timestamps match Copenhagen regardless of client timezone
+  const copenhagenNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Copenhagen" }));
+  const baseTimeMs = copenhagenNow.getTime();
 
   return Array.from({ length: count }, (_, idx) => {
     const template = baseCallTemplates[idx % baseCallTemplates.length];
     const hoursAgo = Math.min(47, Math.floor((idx / Math.max(1, count - 1)) * 47));
     const minuteSkew = (idx % 6) * 5; // small variance for timestamps
-    const createdDate = new Date(nowBucketMs - hoursAgo * 3_600_000 - minuteSkew * 60_000);
+    const createdDate = new Date(baseTimeMs - hoursAgo * 3_600_000 - minuteSkew * 60_000);
 
-    const status = idx % 9 === 0 ? "live" : idx % 4 === 0 ? "resolved" : "open";
+    // Treat only very recent calls as "live" to keep status aligned with timestamp
+    const isLive = hoursAgo <= 1;
+    const status = isLive ? "live" : idx % 4 === 0 ? "resolved" : "open";
     const urgency = idx % 7 === 0 ? "high" : idx % 3 === 0 ? "medium" : "low";
 
     return {
