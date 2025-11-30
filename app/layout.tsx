@@ -8,8 +8,8 @@ import { AppHeader } from "./components/AppHeader";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Review Response Generator",
-  description: "AI-powered review response generator",
+  title: "Customer-Service Desk power by AI",
+  description: "AI-powered customer-service desk for calls, emails, and reviews",
 };
 
 export default function RootLayout({

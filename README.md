@@ -1,100 +1,51 @@
-# Review Response Generator
+# Customer-Service Desk power by AI
 
-A Next.js web application that generates AI-powered responses to product reviews. Users can select from synthetic reviews, choose a response tone, and get AI-generated responses with options to regenerate, edit, or accept.
+AI-powered customer comms workspace built with Next.js 16, covering phone calls, customer emails, and product reviews. It ships with synthetic data, guided workflows, and mock/real API endpoints so you can try everything locally.
 
-## Tech Stack
+## What you get
+- Phone Calls: searchable queue with product model filters and a priority (“Periority”) dropdown (All/High/medium/low), live assist checklist, tone suggestions, AI follow-up drafts, and recap generation.
+- Emails: inbox with priority filtering, tone selection, Gemini-powered reply drafting/regeneration, and product-level summaries.
+- Reviews: curated reviews with tone selection, AI replies, key-concern highlights, regeneration, and accept flow.
+- Shared: glassy Tailwind UI, TanStack Query mutations, and mock data sources for instant bootstrapping.
 
-- **Next.js 16** (App Router)
-- **TypeScript**
-- **Tailwind CSS**
-- **TanStack Query** (React Query)
+## Tech stack
+- Next.js 16 (App Router), TypeScript, Tailwind CSS
+- TanStack Query for mutations and async state
+- Sonner for toasts
 
-## Features
-
-- 15 synthetic product reviews (mix of positive, negative, and neutral)
-- Review selection with visual feedback
-- Tone selection dropdown (Friendly, Formal, Apologetic, Neutral/Professional)
-- AI response generation with loading indicators
-- Key concerns highlighting for negative reviews
-- Response editing capability
-- Regenerate functionality
-- Accept action
-
-## Getting Started
-
-### Installation
-
+## Getting started
+1) Install dependencies
 ```bash
 npm install
 ```
-
-### Environment Variables
-
-Create a `.env.local` file in the project root:
-
-```
+2) Set environment variables (required for email drafting)
+```bash
+cp .env.local.example .env.local # if you keep one, otherwise create manually
 GEMINI_API_KEY=your_google_gemini_api_key
 ```
-
-This key powers the AI response endpoint. Never commit the actual value to source control.
-
-### Development
-
-Run the development server:
-
+3) Run the dev server
 ```bash
 npm run dev
 ```
+Visit `http://localhost:3000`.
 
-Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
+## Available scripts
+- `npm run dev` - start Next.js in development
+- `npm run build` - production build
+- `npm run start` - run the built app
+- `npm run lint` - lint the codebase
 
-### Build
+## Key routes & data
+- UI pages: `app/phone-calls/page.tsx`, `app/emails/page.tsx`, `app/reviews/page.tsx`
+- Core data: `app/lib/calls.ts`, `app/lib/emails.ts`, `app/lib/reviews.ts`, `app/lib/types.ts`
+- API routes:
+  - `/api/generate-call-followup` - builds follow-up drafts from call data
+  - `/api/generate-call-recap` - returns recap content for a call
+  - `/api/generate-email-response` - calls Gemini (requires `GEMINI_API_KEY`)
+  - `/api/generate-email-summary` - summarizes emails by product
+  - `/api/generate-response` and `/api/generate-summary` - review responses/summaries
 
-Build the application for production:
-
-```bash
-npm run build
-```
-
-### Start Production Server
-
-```bash
-npm start
-```
-
-## Project Structure
-
-```
-/app
-  /api
-    /generate-response
-      route.ts          # Mock API endpoint
-  /components
-    ReviewSelector.tsx  # Review selection component
-    ToneSelector.tsx    # Tone dropdown component
-    ResponseViewer.tsx  # Response display and editing
-    LoadingSpinner.tsx  # Loading indicator
-  /lib
-    reviews.ts          # Synthetic review data
-    types.ts            # TypeScript type definitions
-  page.tsx              # Main page
-  layout.tsx            # Root layout
-  globals.css           # Global styles
-```
-
-## Usage
-
-1. **Select a Review**: Click on any review card to select it
-2. **Choose a Tone**: Select your desired response tone from the dropdown
-3. **Generate Response**: Click "Generate AI Response" button
-4. **Review & Edit**: 
-   - View the generated response
-   - Edit manually if needed
-   - Regenerate for a new response
-   - Accept when satisfied
-
-## Mock API
-
-The application uses a mock API endpoint (`/api/generate-response`) that simulates a 1-2 second delay and generates contextual responses based on the review sentiment and selected tone.
-
-# Review-Generator
+## Notes
+- Phone calls and reviews rely on in-repo mock data and run offline.
+- Email drafting requires a valid Gemini API key; without it, the email responder endpoint will fail fast.
+- The “Periority” label/choices in the Phone Calls sidebar mirror the UI terminology intentionally.
